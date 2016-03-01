@@ -1,0 +1,139 @@
+<resources>
+    <string name="app_name">Study Helper</string>
+    <string name="action_settings">Settings</string>
+    <string name="enter_addtab_text_answer_dialog">Enter</string>
+    <string name="backgroung_for_titlesfragment_textview">backgroundtextviewid</string>
+    <string name="new_group_name_created_by_user">Create new group</string>
+    <string name="save_button__in_create_group_xml">Save</string>
+    <array name="spinner_values">
+        <item>Sciences</item>
+        <item>Technical</item>
+        <item>Hardware</item>
+
+
+    </array>
+    <array name="spinner_questions">
+        <item>Describe</item>
+        <item>Define</item>
+        <item>What is</item>
+        <item>Explain</item>
+
+
+    </array>
+    <string name="title_activity_title_fragment">Titles</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="title_activity_title_content">Content</string>
+    <string name="title_activity_login">Sign in</string>
+
+    <!--Strings related to homepage-->
+    <string name="question_ans">You have completed a session,press the play button to start again</string>
+    <string name="new_application">You do not have any data</string>
+
+    <!-- Strings related to login -->
+
+    <string name="repeat_password">Repeat Password</string>
+    <string name="old_password">Old Password</string>
+    <string name="change_password">Change Password</string>
+
+    <string name="change_Username">Change Username</string>
+    <string name="new_email">New Email</string>
+    <string name="reset_password">Reset Password</string>
+    return_login_register
+    <string name="return_login_register">Return To Login</string>
+    <string name="new_password">New Password</string>
+    <string name="access_to_change_password">Request Password Change</string>
+    <string name="access_to_reset_password">Request Password Reset</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password </string>
+    <string name="action_sign_in">Sign in</string>
+    <string name="action_register"> register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email</string>
+        <string name="connection_error">"It seems you do not have a network connection,you do require a network connection to login."
+    </string>
+    <string name="email_taken">"There is an account on record that matches the email provided."
+    </string>
+    <string name="invalid_password">"The password provided does not match,whats on record,pls provide a correct password,or request to reset password."
+
+    </string>
+     <string name="user_does_not_exist">"A user with the provided email,does not exist on record.Create a new account if you do not have one."
+
+    </string>
+
+    <string name="password_reset_response">A temporary password has been sent to the email provided,use the provided password to login.</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_social_recommendations">Enable social recommendations</string>
+    <string name="pref_description_social_recommendations">Recommendations for people to contact
+        based on your message history
+    </string>
+
+    <string name="pref_title_display_name">Display name</string>
+    <string name="pref_default_display_name">John Smith</string>
+
+    <string name="pref_title_add_friends_to_messages">Add friends to messages</string>
+    <string-array name="pref_example_list_titles">
+        <item>Always</item>
+        <item>When possible</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_example_list_values">
+        <item>1</item>
+        <item>0</item>
+        <item>-1</item>
+    </string-array>
+
+    <!-- Example settings for Data & Sync -->
+    <string name="pref_header_data_sync">Data &amp; sync</string>
+
+    <string name="pref_title_sync_frequency">Sync frequency</string>
+    <string-array name="pref_sync_frequency_titles">
+        <item>15 minutes</item>
+        <item>30 minutes</item>
+        <item>1 hour</item>
+        <item>3 hours</item>
+        <item>6 hours</item>
+        <item>Never</item>
+    </string-array>
+    <string-array name="pref_sync_frequency_values">
+        <item>15</item>
+        <item>30</item>
+        <item>60</item>
+        <item>180</item>
+        <item>360</item>
+        <item>-1</item>
+    </string-array>
+
+    <string name="pref_title_logout">Logout</string>
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_logout">Logout</string>
+    <string name="about">About</string>
+    <string name="pref_title_new_message_notifications">New message notifications</string>
+
+    <string name="pref_title_ringtone">Ringtone</string>
+    <string name="pref_ringtone_silent">Silent</string>
+
+    <string name="pref_title_vibrate">Vibrate</string>
+    <string name="change_username">Change Username</string>
+    <string name="password_changed">Password Changed</string>
+    <string name="username_changed_error">The Password provided does not match,what is on record</string>
+
+
+    <!-- Resource for home page -->
+    <string name="answer_hint">Enter answer here</string>
+    <string name="start_Text">Click The Button Below To Start</string>
+
+
+
+
+</resources>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:orientation="vertical"
+
+        >
+        <android.support.design.widget.TextInputLayout
+
+            style="@style/formcontent.login"
+            >
+
+            <AutoCompleteTextView
+                style="@style/formcontent.login"
+                android:id="@+id/newEmail"
+                android:hint="@string/new_email"
+                android:textColor="#fff"
+                android:inputType="text"
+                android:maxLines="1"
+                android:singleLine="true" />
+
+        </android.support.design.widget.TextInputLayout>
+
+
+
+
+
+        <android.support.design.widget.TextInputLayout
+            style="@style/formcontent.login"
+            android:id="@+id/newpassword11"
+
+            >
+
+            <AutoCompleteTextView
+                android:id="@+id/password"
+                style="@style/formcontent.login"
+                android:hint="@string/prompt_password"
+                android:textColor="#fff"
+                android:inputType="textPassword"
+                android:maxLines="1"
+                android:singleLine="true"
+                />
+
+        </android.support.design.widget.TextInputLayout>
+
+        <TextView
+            style="@style/formcontent.login"
+            android:visibility="gone"
+            android:id="@+id/result"
+
+            />
+
+
+
+        <Button
+            style="@style/formcontent.buttons"
+            android:text="@string/change_username"
+            android:id="@+id/changeusername"
+            android:layout_marginTop="0px"
+            android:layout_marginBottom="10px"
+            />
+
+    </LinearLayout>
+
+</ScrollView>
+

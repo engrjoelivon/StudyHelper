@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:theme="@style/addtab"
+    android:layout_height="match_parent">
+
+
+    <EditText
+        android:id="@+id/questionValue"
+        android:hint="enter Questions below"
+        style="@style/forDialogsEdittext"
+        />
+
+    <Button
+        style="@style/dialogButtons"
+        android:text="@string/save_button__in_create_group_xml"
+        android:id="@+id/saveQuestion"
+         />
+</FrameLayout>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:theme="@style/addtab">
+
+
+    <EditText
+        android:id="@+id/new_group_name"
+        android:hint="@string/new_group_name_created_by_user"
+        style="@style/forDialogsEdittext"
+
+         />
+
+    <Button
+        style="@style/dialogButtons"
+        android:text="@string/save_button__in_create_group_xml"
+        android:id="@+id/saveGroup"
+
+        />
+</FrameLayout>

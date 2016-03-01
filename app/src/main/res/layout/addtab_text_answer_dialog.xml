@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    app:theme="@style/addtab">
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:text="@string/enter_addtab_text_answer_dialog"
+        android:id="@+id/enter_button"
+        android:layout_gravity="center_horizontal"
+        />
+
+    <EditText
+        android:layout_width="300dp"
+        android:layout_height="400dp"
+        android:id="@+id/answer_text"
+        style="@style/forDialogsEdittext"
+        android:gravity="left|top" />
+
+
+</LinearLayout>

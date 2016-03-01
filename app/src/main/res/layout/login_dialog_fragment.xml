@@ -1,0 +1,92 @@
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context="com.example.joel.studyaid.Registration"
+    android:orientation="vertical"
+    android:background="#313030">
+
+    <FrameLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="0px"
+
+        >
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SignUp"
+            android:layout_margin="0px"
+            android:id="@+id/signup"
+
+            android:textColor="@color/onfocus"
+            android:layout_gravity="right|center_vertical" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Login"
+            android:id="@+id/login"
+            android:layout_margin="0px"
+
+            android:textColor="@color/buttonclicked"
+            android:layout_gravity="left|center_vertical"
+             />
+
+    </FrameLayout>
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textWebEmailAddress"
+        android:hint="Email"
+        android:ems="10"
+
+        android:id="@+id/email"
+        android:layout_gravity="center"
+        android:gravity="center_vertical"
+        />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:hint="Password"
+        android:id="@+id/password"
+        android:layout_gravity="center"
+        android:gravity="center_vertical"
+        />
+
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:hint="Confirm Password"
+        android:visibility="invisible"
+        android:ems="10"
+        android:id="@+id/confirm_password"
+        android:layout_gravity="center"
+        android:gravity="center_vertical" />
+
+
+
+
+
+
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enter"
+        android:textColor="@color/buttonclicked"
+
+        android:id="@+id/enter"
+        android:layout_gravity="center_horizontal" />
+
+</LinearLayout>
