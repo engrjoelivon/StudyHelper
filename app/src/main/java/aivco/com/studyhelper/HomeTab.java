@@ -1,193 +1,248 @@
 package aivco.com.studyhelper;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.database.Cursor;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Message;
+import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.AttributeSet;
-import android.util.Xml;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.AbsoluteLayout;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageSwitcher;
-import android.widget.ImageView;
-import android.widget.Switch;
+import android.widget.ScrollView;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 import android.os.Handler;
 
+
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
-import java.util.ArrayList;
+import java.util.List;
 
+import backend.DbService;
+import backend.Title;
 import backend.TitleInfo;
 
 
 public class HomeTab extends AppCompatActivity implements View.OnClickListener {
-public String Tag="HomeTab";
-    TextView myText,answer,startLabel;
-    ImageSwitcher imageSwitcher;
+
+    public static final int QAISREADY =10; //code for question and answer is ready
+    private static final int QAREADY =11 ;
+
+    public String tag="studyhelper.HomeTab3";
+    TextView myText,answer,startLabel,label;
+    static EditText  myanswer;
     TextSwitcher textSwitcher;
     boolean showanswer=false;/////will determine which text should be displayed by the textswitcher widjet
     ProgressDialog pg;
     TitleInfo titleInfo;
-    ArrayList<Topics> myTopics=null;///represent the list of questions and answer returned from the cursor query
-    Handler handleQuesandans;
+    public static Handler handleQuesandans;
     int mytopicsize=-1;//variable to determine the size of the list,so as to increment
     public final int QUERYCOMPLETED=1;//usee inside the handler,to respond when the query is from the string
     public int retrieveQuery;
     int quesandAnsCount=0;
     int priorityvalue;//variable that holds the priority level
-
+    public List<Title>  list4QA;
+    private ImageButton backButton,imageSwitcher,icMenuEdit,updateAnswer;
+    private int count=0;//variable that handles values inserted into handleBack array
+    private static String TAG="aivco.com.studyhelper.HomeTab3";
+    private boolean firstime=false;
+    private static String uniqueid;
+    private int qaListCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_tab);
+        Log.d(tag,"oncreate");
         pg=new ProgressDialog(this);
         titleInfo=new TitleInfo(this);
         answer=(TextView)findViewById(R.id.answer);
+        label=(TextView)findViewById(R.id.label);
         startLabel=(TextView)findViewById(R.id.startLabel);
-        imageSwitcher=(ImageSwitcher)findViewById(R.id.imageSwitcher);
+        imageSwitcher=(ImageButton)findViewById(R.id.imageSwitcher);
+        imageSwitcher.setOnClickListener(this);
+        updateAnswer=(ImageButton)findViewById(R.id.update);
+        updateAnswer.setOnClickListener(this);
+        backButton=(ImageButton)findViewById(R.id.backbutton);
+        backButton.setOnClickListener(this);
+        icMenuEdit=(ImageButton)findViewById(R.id.edit);
+        icMenuEdit.setOnClickListener(this);
         textSwitcher=(TextSwitcher)findViewById(R.id.textSwitcher);
+        //myanswer=(EditText)findViewById(R.id.answer);
+
         priorityvalue=3;
 
-       createTextSwitcher();
-        createImageSwitcher();
-
-       disableButtons();
-        handleQuesandans=new Handler(new Handler.Callback() {
+        createTextSwitcher();
+        answer.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean handleMessage(Message message) {
-
-              switch(message.what)
-              {
-                  case QUERYCOMPLETED:
-                  {
-                      System.out.println("..................completed query.......................");
-
-   ////////////////////will be true only if the query returned values/////////////////////
-                      if(myTopics.size() >0)
-                      {
-                          System.out.println("..................my topic is no null.......................");
-
-                          mytopicsize=myTopics.size();
-                          priorityvalue--;//reduces priority level so that next time a query will be made on the database it will return different values
-                      }
-                      ////////////////will be executed when the query returned no value////////////////////////
-                      // but because the application still needs to perform another query for priority levels 2 and 1////////
-
-
-
-                      else if(priorityvalue > 1)
-                           {
-                               System.out.println("..................priority value is not 1.......................");
-
-
-                               GetTopics getTopics=new GetTopics();
-                               getTopics.execute(String.valueOf(--priorityvalue));
-                               break;
-                           }
-                      /////////////will be executed when all the queries are completed and it returns no value//////////////
-                      ////////returns program to default values///////////
-                           else
-                          {
-                              System.out.println("..................does not contain any values at all needs to return values to default.......................");
-                               displayText(getResources().getString(R.string.question_ans));
-
-                          titleInfo.returnToDefault();
-                          priorityvalue=3;
-                          break;
-
-                          }
-                      if(!showanswer)
-                      {
-                          System.out.println("..................so answer is false so show question.......................");
-
-                          quesandAnsCount=--mytopicsize;
-                          System.out.println("..................quesandanscount is......................."+ quesandAnsCount);
-
-
-                                  setQuestion(myTopics.get(quesandAnsCount).question);
-
-
-                      }
-                      else
-                      {
-
-                          setAnswer(myTopics.get(quesandAnsCount).getAnswer());
-                      }
-                      break;
-                  }
-
-              }
+            public boolean onTouch(View v, MotionEvent event) {
+                v.setFocusableInTouchMode(true);
                 return false;
             }
         });
+        //titleInfo.returnToDefault();
+        //list4QA=titleInfo.generateQuestionAndAnswer(true);
+        if(SharedPreferenceHelper.getString(   MainActivity.MYEMAIL) != null)
+        new GetQA().execute();
+        disableButtons();
+        handleQuesandans=new Handler(new Handler.Callback()
+        {
+            @Override
+            public boolean handleMessage(Message message) {
+                switch(message.what)
+                {
+                    case QAREADY:{
+                        Log.d(tag, "question and answer is ready");
+                        //list4QA=TitleInfo.listQA;
+                        displayText(getResources().getString(R.string.new_application));
+                        if(!(list4QA.size()==0))
+                        enableButtons();
+
+                        break;
+                    }
+
+
+
+                }
+                return false;
+            }
+
+            });
 
     }
 
 
-   public void disableButtons(){
- answer.setVisibility(View.INVISIBLE);
-       textSwitcher.setVisibility(View.INVISIBLE);
+
+    public void disableButtons()
+    {
+        answer.setVisibility(View.INVISIBLE);
+        textSwitcher.setVisibility(View.INVISIBLE);
+        backButton.setEnabled(false);
+        imageSwitcher.setEnabled(false);
 
 
-   }
+
+    }
     public void enableButtons(){
         textSwitcher.setVisibility(View.VISIBLE);
         answer.setVisibility(View.VISIBLE);
-        startLabel.setVisibility(View.INVISIBLE);
+        imageSwitcher.setEnabled(true);
+        startLabel.setVisibility(View.GONE);
+
 
 
 
     }
 
+
     @Override
     public void onClick(View view) {
-
+        answer.setFocusableInTouchMode(false);
+        answer.clearFocus();
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         switch(view.getId()){
 
+
             case R.id.imageSwitcher:{
-                if(SharedPreferenceHelper.getString(MainActivity.DATASTORED_KEY)!=null)
+                if(list4QA .isEmpty())
                 {
+                    Log.d(tag, "its isEmpty");
+                    titleInfo.returnToDefault();
+                    //list4QA=titleInfo.generateQuestionAndAnswer(true);
+                    new GetQA().execute();
 
+                    displayText(getResources().getString(R.string.new_application));
 
-
-                enableButtons();
-                if(showanswer)
-                {   System.out.println("..................show answer.......................");
-                    setAnswer(getAnswer());
                 }
                 else
                 {
-                    System.out.println("..................show question.......................");
+                    Log.d(tag,"it is not Empty");
+                    if(qaListCount < list4QA.size())
+                    { Log.d(tag,"qaListCount is less than total size");
+                        backButton.setEnabled(true);
+                        if (showanswer)
+                        {
+                            setAnswer(getAnswer());
+                            qaListCount++;
+                        } else
+                        {
+                            setQuestion(getQuestions());
+                        }
+                    }
+                    else
+                    {
+                        Log.d(tag, "finised item in array need to reload");
+                        //disableButtons();
+                        titleInfo.returnToDefault();
+                        qaListCount=0;
 
-                        getQuestions("3");
+                        displayText(getResources().getString(R.string.question_ans));
+                        //list4QA=titleInfo.generateQuestionAndAnswer(true);
+                        new GetQA().execute();
 
+                    }
                 }
 
                 break;
             }
-                else
+
+            case R.id.backbutton:
+            {
+                System.out.println("..................backicon......................................................");
+                //getBack();
+                if(qaListCount > 0)
                 {
-                    displayText(getResources().getString(R.string.new_application));
+                    qaListCount--;
+
+                if (showanswer)
+                {
+
+                    System.out.println("..................its show answer for backbutton......................................................");
+                    setAnswer(getAnswer());
+
+
 
                 }
+                else{
+                    System.out.println("..................its show question for backbutton......................................................");
+                    setQuestion(getQuestions());
+                }
+
+            }break;
             }
+            case R.id.edit:
+            {
+                startSecActivity(uniqueid);
+                break;
+            }
+            case R.id.update:
+            {
+                android.support.v4.app.FragmentManager fragmentManager=getSupportFragmentManager();
+                updateFragment updateFragment=new updateFragment();
+                updateFragment.show(fragmentManager,"tag");
 
-
+            }
         }
 
     }
@@ -196,6 +251,7 @@ public String Tag="HomeTab";
         textSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
 
             public View makeView() {
+
                 // TODO Auto-generated method stub
                 // create new textView and set the properties like clolr, size etc
                 myText = new TextView(HomeTab.this);
@@ -208,8 +264,8 @@ public String Tag="HomeTab";
 
 
 
-        Animation in = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left);
-        Animation out = AnimationUtils.loadAnimation(this,android.R.anim.slide_out_right);
+        Animation in = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+        Animation out = AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
 
         textSwitcher .setInAnimation(in);
         textSwitcher .setOutAnimation(out);
@@ -217,75 +273,11 @@ public String Tag="HomeTab";
 
     }
 
-    public void createImageSwitcher(){
-
-
-
-
-
-        // Set the ViewFactory of the ImageSwitcher that will create ImageView object when asked
-        imageSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
-
-            public View makeView() {
-                // TODO Auto-generated method stub
-
-                // Create a new ImageView set it's properties
-                ImageView imageView = new ImageView(getApplicationContext());
-                imageView.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-                imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                imageView.setLayoutParams(new ImageSwitcher.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
-                return imageView;
-            }
-        });
-
-        // Declare the animations and initialize them
-        Animation in = AnimationUtils.loadAnimation(this,android.R.anim.slide_in_left);
-        Animation out = AnimationUtils.loadAnimation(this,android.R.anim.slide_out_right);
-
-        // set the animation type to imageSwitcher
-        imageSwitcher.setInAnimation(in);
-        imageSwitcher.setOutAnimation(out);
-
-
-        imageSwitcher.setImageResource(R.drawable.starticon);
-        imageSwitcher.setOnClickListener(this);
-
-    }
-
     ////////////////performs a query on the db,using the priority levels passed in,or obtains the question from the array list
-    private void getQuestions(String priority)
-    {    //When application starts mytopicsize is less than 0,so a query will be made on the db.
-        ///mytopicsize will then represent the size of the cursor returned from the query,everytime a question is obtained from the arraylist i.e the cursor
-        //mytopicsize reduces,until it becomes less than 0,at this point a new query will be made on the db.
-        if(mytopicsize < 0)
-        {
-            System.out.println("..................get question from db......................");
-            ///from start of application priority level will be set at 3///after every successful query priority level reduces by one,this is set inside the handler
-            if(priorityvalue <1)
-            {
-                //when priority level becomes less than 1//that means all questions have been obtained and need to restart
-                priorityvalue=3;
-                titleInfo.returnToDefault();
-                displayText(getResources().getString(R.string.question_ans));
-                return;
-            }
-            GetTopics getTopics=new GetTopics();
-        getTopics.execute(String.valueOf(priorityvalue));}
-        else
-        {
-            System.out.println("..................get question from array.........size of array is.............."+quesandAnsCount);
-            setQuestion(myTopics.get(quesandAnsCount).getQuestion());
-
-        }
-
-    }
-
-
-    @Override
-    protected void onStop()
+    private String getQuestions()
     {
-        super.onStop();
-        mytopicsize=-1;
+        Title thisTitle=list4QA.get(qaListCount);
+        return thisTitle.getQuestionname();
     }
 
     private void setQuestion(String question)
@@ -293,20 +285,20 @@ public String Tag="HomeTab";
         showanswer=true;
         System.out.println("..................setting question.......................");
         textSwitcher.setText(question);
-
-      updateGiven();
+        answer.setText("");
+        label.setText(getResources().getString(R.string.labelQuestion));
+        ((ScrollView)findViewById(R.id.myscroll)).scrollTo(0, 0);
+        updateGiven();
 
     }
 
     private String getAnswer()
     {
         System.out.println("..................get answer.......................");
-
-        String ans=  myTopics.get(quesandAnsCount).getAnswer();
-        quesandAnsCount=--mytopicsize;
-        System.out.println("..................i set count to......................." + quesandAnsCount);
-
-
+        Title thisTitle=list4QA.get(qaListCount);
+        String ans=  thisTitle.getAnswer();
+        uniqueid=thisTitle.getUnique_Key();
+        System.out.println("..................uniqueid id......................."+ uniqueid);
         return ans;
     }
 
@@ -317,44 +309,48 @@ public String Tag="HomeTab";
         showanswer=false;
         textSwitcher.setText(answer);
         System.out.println("..................settings answer.......................");
-
+        label.setText(getResources().getString(R.string.labelAnswer));
+        ((ScrollView)findViewById(R.id.myscroll)).scrollTo(0, 0);
+        firstime=true;
     }
+
+
 
     /////after setting the data,i called updategiven to set the number to false////until returned back to true,it will not be pulled next session
     /////except after the whole data has completed
 
     public void updateGiven(){
-
-        titleInfo.updateGiven(myTopics.get(quesandAnsCount).getId(),futuredateTime(myTopics.get(quesandAnsCount).getDiff_level()),myTopics.get(quesandAnsCount).getNumoftimegiven()+1);
-
-
-
+        Title qaTitle=list4QA.get(qaListCount);
+        titleInfo.updateGiven(qaTitle.getUnique_Key(),futuredateTime(qaTitle.getDifficulty_level()),qaTitle.getNumber_of_times_visited()+1);
     }
 
-    public  String futuredateTime(String  diff)
-    {
-        System.out.println("..................settings answer......................."+diff);
+    public  String futuredateTime(int  diff)
+    {DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-DD-HH-mm-ss");
+
+        System.out.println("..................settings answer......................." + diff);
 
         LocalDateTime ldt=null;
-        if(Integer.parseInt(diff)==3)
+
+        if(diff==3)
         {
             System.out.println("..................(diff)==3.......................");
-            ldt=new LocalDateTime();
-            return ldt.plusHours(24).toString();
+            ldt=LocalDateTime.now(DateTimeZone.UTC);
+
+            return ldt.plusHours(SharedPreferenceHelper.getInt(MainActivity.KEYFORDIFFICULTYHIGH)).toString();
         }
-        else if(Integer.parseInt(diff)==2)
+        else if(diff==2)
         {
             System.out.println("..................(diff)==2......................");
 
-        ldt=new LocalDateTime();
-        return ldt.plusHours(48).toString();}
+            ldt=new LocalDateTime(DateTimeZone.UTC);
+            return ldt.plusHours(SharedPreferenceHelper.getInt(MainActivity.KEYFORDIFFICULTYMED)).toString();}
 
-        else if(Integer.parseInt(diff)==1)
+        else if(diff==1)
         {
             System.out.println("..................(diff)==1......................");
 
-            ldt=new LocalDateTime();
-            return ldt.plusHours(72).toString();}
+            ldt=new LocalDateTime(DateTimeZone.UTC);
+            return ldt.plusHours(SharedPreferenceHelper.getInt(MainActivity.KEYFORDIFFICULTYLOW)).toString();}
 
 
         return null;
@@ -369,112 +365,121 @@ public String Tag="HomeTab";
     }
 
 
-    public class GetTopics extends AsyncTask<String,String,ArrayList<Topics>>{
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        mytopicsize=-1;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    public void startSecActivity(String key)
+    {
+
+
+        if(key != null){
+            SharedPreferenceHelper.setData(ContentTab.TITLECONTENTSELECTIONKEY,key);
+            Intent intent=new Intent();
+            intent.putExtra(TitleContentActivity.UNIQUE_KEY,key);
+            intent.setClass(this, TitleContentActivity.class);
+            startActivity(new Intent(this, TitleContentActivity.class));
+
+        }
+
+    }
+
+    public void createDialog(String status,Context context)
+    {
+
+        pg=new ProgressDialog(context);
+        pg.setMessage(status);
+        pg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        pg.setCanceledOnTouchOutside(false);
+        pg.show();
+
+    }
+
+
+    public static class updateFragment extends DialogFragment {
 
         @Override
-        protected void onPreExecute()
-        {
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            return new AlertDialog.Builder(getActivity())// Set Dialog Icon
+                    .setIcon(android.R.drawable.dialog_frame)
+                    .setTitle("choose an option")
+
+                    .setMessage("Are you sure you want to Update,answer will be changed permanently")
+                    .setPositiveButton("Update", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            if(uniqueid != null)
+                                new TitleInfo(getContext()).upDate(uniqueid,myanswer.getText().toString());
+
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,   int which) {
+                            // Do something else
+                        }
+                    }).create();
+        }
+
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            return super.onCreateView(inflater, container, savedInstanceState);
+
+        }
+
+
+    }
+
+    public class GetQA extends AsyncTask{
+
+
+        @Override
+        protected void onPreExecute() {
             super.onPreExecute();
+            createDialog("loading content.",HomeTab.this);
 
-            System.out.println("..................GetTopics.......................");
-            showDialog();
 
         }
 
         @Override
-        protected ArrayList<Topics> doInBackground(String... strings)
-        {
-            String question=null;
-            ArrayList<Topics> mytopic=new ArrayList<>();
-           Cursor cursor= titleInfo.getTopics(strings[0]);
-            System.out.println("..........................cursor has a size of........................" + cursor.getCount());
+        protected Object doInBackground(Object[] params) {
+            List<Title> res=titleInfo.generateQuestionAndAnswer();
+            LocalTime furturetime= LocalTime.now().plusSeconds(1);
+            while (LocalTime.now().isBefore(furturetime));
 
-            while(cursor.moveToNext()){
-                mytopic.add(new Topics(cursor.getInt(cursor.getColumnIndex(TitleInfo.id_col)),
-                        cursor.getString(cursor.getColumnIndex(TitleInfo.question_col)),
-                        cursor.getString(cursor.getColumnIndex(TitleInfo.answer_col)),
-                        cursor.getString(cursor.getColumnIndex(TitleInfo.diff_col)),
-                        cursor.getInt(cursor.getColumnIndex(TitleInfo.number_visited_col))
-                        ));
-
-
-            }
-            return mytopic;
+            return res;
         }
 
         @Override
-        protected void onPostExecute(ArrayList<Topics> s)
-        {
-            super.onPostExecute(s);
-            pg.dismiss();
-            myTopics=s;
-            handleQuesandans.sendEmptyMessage(1);
+        protected void onPostExecute(Object o) {
+            super.onPostExecute(o);
+
+            pg.cancel();
+            list4QA=(List<Title>)o;
+            handleQuesandans.sendEmptyMessage(QAREADY);
+        }
+
+        @Override
+        protected void onProgressUpdate(Object[] values) {
+            super.onProgressUpdate(values);
+
 
         }
     }
-
-
-
-
-public void showDialog(){
-    pg.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-    pg.setMessage("get ready....");
-    pg.setIndeterminate(true);
-    pg.show();
-
-
-
-}
-    private class Topics{
-        public int id;
-        public String question;
-        public String answer;
-        public String diff_level;
-        public int numoftimegiven;
-
-
-        public Topics(int id,String question,String answer,String difficulty,int nOTGiven) {
-
-            this.question=question;
-            this.id=id;
-            this.answer=answer;
-            this.diff_level=difficulty;
-            this.numoftimegiven=nOTGiven;
-        }
-
-        public String getDiff_level()
-        {
-            return diff_level;
-        }
-
-        public void setDiff_level(String diff_level)
-        {
-            this.diff_level = diff_level;
-        }
-
-        public String getQuestion() {
-            return question;
-        }
-
-        public String getAnswer() {
-            return answer;
-        }
-
-        public int getId() {
-            return id;
-        }
-
-        public int getNumoftimegiven() {
-            return numoftimegiven;
-        }
-
-        public void setNumoftimegiven(int numoftimegiven) {
-            this.numoftimegiven = numoftimegiven;
-        }
-    }
-
-
-
 
 
 }

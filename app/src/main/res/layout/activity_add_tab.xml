@@ -179,26 +179,26 @@
             android:id="@+id/answer"
              />
 
-        <Button
+        <ImageButton
 
             android:text="Text"
             android:id="@+id/button_text"
             android:layout_weight="1"
-            android:background="@drawable/roundedcornerbuttons"
+            android:background="@null"
             android:layout_margin="5dp"
-
+            android:src="@drawable/edit"
 
             style="@style/formcontent.buttons"
             />
 
-        <Button
+        <ImageButton
 
             android:text="Image"
             android:layout_weight="1"
             android:id="@+id/button_image"
             android:layout_marginTop="0px"
-            android:background="@drawable/roundedcornerbuttons"
-
+            android:background="@null"
+            android:src="@android:drawable/ic_menu_camera"
             android:layout_margin="5dp"
             style="@style/formcontent.buttons"
              />
@@ -223,10 +223,10 @@
 
         <Button
 
-            android:text="Save Titles"
+            android:text="@string/save_titles"
             android:id="@+id/saveTitles"
             android:layout_margin="0px"
-            android:background="@drawable/roundedcornerbuttons"
+            android:background="@null"
             style="@style/formcontent.buttons"
             />
 

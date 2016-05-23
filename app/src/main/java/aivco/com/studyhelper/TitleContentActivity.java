@@ -1,20 +1,30 @@
 package aivco.com.studyhelper;
 
+import android.app.Activity;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.client.FirebaseError;
 
@@ -40,23 +50,40 @@ public class TitleContentActivity extends AppCompatActivity implements View.OnCl
     public static Handler h;
     public static final String ACTION_BAR_KEY="actionbarkey";
     static TitleContentActivityFragment.Toolbarinterface myToolbarinterface;
-    private ImageButton toolbardelete,toolbaredit,toolbarsave;
+    private ImageButton toolbarsave;
     public static HandleFirebase handleFirebase;
+    public static String UNIQUE_KEY="uniquekeytosearchtable";
+    FloatingActionButton fab;
+    TextView tv;
+    public static AppCompatActivity finishAcitivty;
+
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
+
+
+        ImageButton toolbardelete,toolbaredit, toolbarmove;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_title_content);
-
+        finishAcitivty=this;
         h = new Handler(new Handler.Callback() {
             @Override
             public boolean handleMessage(Message message) {
                 int a = message.what;
+                if(a == 2)
+                {
+                    getWindow().setSoftInputMode(
+                            WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+                    );
+                    return true;
+                }
                 Bundle bundle = message.getData();
-                String data = bundle.getString(ACTION_BAR_KEY);
+                    String data = bundle.getString(ACTION_BAR_KEY);
+                    tv.setText(data);
 
-                getSupportActionBar().setTitle("");
+
 
 
                 return true;
@@ -66,28 +93,34 @@ public class TitleContentActivity extends AppCompatActivity implements View.OnCl
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if(getSupportActionBar() != null)
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         toolbardelete =(ImageButton)findViewById(R.id.toolbardelete);
         toolbaredit=(ImageButton)findViewById(R.id.toolbaredit);
         toolbarsave=(ImageButton)findViewById(R.id.toolbarsave);
+        toolbarmove=(ImageButton)findViewById(R.id.toolbarmove);
         toolbardelete.setOnClickListener(this);
         toolbaredit.setOnClickListener(this);
         toolbarsave.setOnClickListener(this);
+        toolbarmove.setOnClickListener(this);
         handleFirebase=new HandleFirebase(this);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 startActivity(new Intent(TitleContentActivity.this, MainActivity.class));
+                TitleFragment.logout();
+                finish();
+
             }
         });
 
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        TextView tv = (TextView) findViewById(R.id.tvcontenttoolbar);
-        tv.setText(ContentTab.sp.getString(ContentTab.TITLECONTENTSELECTIONKEY, ""));
-        Log.d(tag, "Oncreate of title content activity");
+        tv = (TextView) findViewById(R.id.tvcontenttoolbar);
+        tv.setSelected(true);
 
     }
 
@@ -105,14 +138,18 @@ public class TitleContentActivity extends AppCompatActivity implements View.OnCl
 
     }
 
+    /*
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        System.out.println("********************home button pressed************************");
+
         return super.onOptionsItemSelected(item);
 
 
 
 
-    }
+    }*/
 
     @Override
     public void onClick(View view) {
@@ -121,31 +158,30 @@ public class TitleContentActivity extends AppCompatActivity implements View.OnCl
         {
 
 
+            new DeleteFragment().show(getFragmentManager(), "");
 
 
-            Log.d(tag, "i am deleteing");
-            myToolbarinterface.upDatedelete();
+
         }
         else if(view.getId() == R.id.toolbaredit)
         {
-
-
-            Log.d(tag, "i am editing");
             toolbarsave.setVisibility(View.VISIBLE);
             myToolbarinterface.upDateedit();
+            fab.setVisibility(View.INVISIBLE);
         }
         else if(view.getId() == R.id.toolbarsave)
         {
-
-
-
-            Log.d(tag, "i am saving it");
-
-
+            toolbarsave.setVisibility(View.INVISIBLE);
+            fab.setVisibility(View.VISIBLE);
             myToolbarinterface.savebutton();
+            h.sendEmptyMessage(2);
         }
 
-
+        else if(view.getId() == R.id.toolbarmove)
+        {
+            myToolbarinterface.setmove();
+            System.out.println("printing move...........................");
+        }
 
     }
 
@@ -199,6 +235,15 @@ public class TitleContentActivity extends AppCompatActivity implements View.OnCl
 
 
                     break;}
+            case R.id.diff_zero:
+                if (checked){
+                    myToolbarinterface.senddiffValue(0);
+
+                    // Pirates are the best
+
+
+
+                    break;}
             case R.id.diff_med:
                 if (checked)
                 {
@@ -225,6 +270,8 @@ public class TitleContentActivity extends AppCompatActivity implements View.OnCl
 
     @Override
     public void login(int code) {
+        Toast.makeText(this, getResources().getString(R.string.textUpdated), Toast.LENGTH_SHORT).show();
+
 
     }
 
@@ -237,4 +284,44 @@ public class TitleContentActivity extends AppCompatActivity implements View.OnCl
     public void errorCode(FirebaseError fe) {
 
     }
+
+    public static class DeleteFragment extends DialogFragment{
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            return new AlertDialog.Builder(getActivity())// Set Dialog Icon
+                    .setIcon(android.R.drawable.dialog_frame)
+                    .setTitle("choose an option")
+
+                    .setMessage("Are you sure you want to Delete")
+                    .setPositiveButton("DELETE", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            Log.d(tag, "i am deleteing");
+                            myToolbarinterface.upDatedelete();
+
+                        }
+                    })
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog,   int which) {
+                            // Do something else
+                        }
+                    }).create();
+        }
+
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            return super.onCreateView(inflater, container, savedInstanceState);
+
+        }
+
+
+    }
+
+    public static void logout(){
+
+        if(finishAcitivty != null)
+        finishAcitivty.finish();
+    }
+
 }

@@ -1,7 +1,9 @@
 package aivco.com.studyhelper;
 
 import android.app.FragmentManager;
+import android.app.ProgressDialog;
 import android.app.TabActivity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -10,42 +12,77 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
+import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
-
 import com.firebase.client.Firebase;
-
-import java.net.CookieHandler;
-import java.net.CookieManager;
-
+import android.os.Handler;
+import backend.DbService;
 import server_commmunication.HandleFirebase;
 
 public class MainActivity extends TabActivity implements  Login_Dialog_Fragment.DialogControl{
     public static final String MYEMAIL ="useremail" ;
     public static final String MYPASSWORD ="userpassword" ;
+    public static final String KEYFORNUMBEROFTIMEVISITED = "MainActivitynumberoftime";
     private Login_Dialog_Fragment ldg;
     private User user;
     static SharedPreferences sharedPreferences;
     public static  String USERNAME="studyhelper_username";
     public static final String USERNAME_KEY="username";
     public static final String PASSWORD="studyhelper_password";
+    public static final String DEVICENAME="studyhelper_devicename";
     private String tag="studyhelper_main";
     public static boolean backpressed=false;
     public static SharedPreferenceHelper sharedPreferenceHelper;
-    public static final String DATASTORED_KEY ="stored";//represent keys for data stored in the database.
+    public static final String DATASTORED_KEY ="stored";//represent ServerKeys for data stored in the database.
     public static String DATASTORED_KEY_VALUE ="datastored";
+    public static Context mycontext;
+    public static final String KEYFORDIFFICULTYHIGH="MainActivity_high";
+    public static final String KEYFORDIFFICULTYMED="MainActivity_med";
+    public static final String KEYFORDIFFICULTYLOW="MainActivity_low";
+    public static Handler handler;
+    public ProgressDialog progressDialog;
+    public static Activity finishAcitivty;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        finishAcitivty=this;
         Firebase.setAndroidContext(this);
         sharedPreferenceHelper=new SharedPreferenceHelper(this);
-        sharedPreferences=getSharedPreferences("NAME", MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences("NAME", MODE_PRIVATE);
+        mycontext=getApplicationContext();
+        handler
+                =new Handler(new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message message) {
+                int a=message.what;
+                switch (a){
+
+                }
+                progressDialog.cancel();
+
+
+                return false;
+            }
+        });
+        //SharedPreferenceHelper.setData(MainActivity.MYEMAIL, null);//remove this
+       // SharedPreferenceHelper.setData(MainActivity.USERNAME, null);//remove this
+        ////set default values for app
+        if(sharedPreferenceHelper.getInt(KEYFORDIFFICULTYHIGH)== 0)
+        {
+
+            sharedPreferenceHelper.setData(KEYFORDIFFICULTYHIGH,12);
+            sharedPreferenceHelper.setData(KEYFORDIFFICULTYMED,24);
+            sharedPreferenceHelper.setData(KEYFORDIFFICULTYLOW,36);
+            sharedPreferenceHelper.setData(KEYFORNUMBEROFTIMEVISITED,10);
+
+        }
 
 
         if(sharedPreferenceHelper.getString(USERNAME_KEY)==null)
@@ -56,6 +93,7 @@ public class MainActivity extends TabActivity implements  Login_Dialog_Fragment.
         }
 
 
+        //DbService.startActionForExpiry(this);
         ///the line below hides the battery,the network and the time////
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
@@ -120,6 +158,24 @@ if(backpressed)
 
 
 
+        if(SharedPreferenceHelper.getString(MYEMAIL) != null)
+        {
+
+            //new ServerWithIon(this).checkRecordAtStartUp("checkinserts/");
+            //new TitleInfo(this).calculateIfExpired();
+           System.out.println(Thread.currentThread());
+            //decided to make the checkupdate all method run at the background thread,another option was to make it run at the main thread
+            //start a progress dialog then,then wait for a call via the handler to end the dialog.I put away that option
+            //because since the checkupdate method runs three calls it will be hard to monitor when each of the calls returns from call to server.
+            //ran expriy first so if any changes are made and passed to the table they can be moved to the server once
+            DbService.startActionForExpiry(this);
+            DbService.StartUpdateAllLocal(this);
+            //DbService.startActionForgenerateQA(this);
+            DbService.startActionToValidateUser(this);
+
+
+        }
+
 
 
 
@@ -127,7 +183,7 @@ if(backpressed)
 
     public static void setBackpressed(boolean value){
 
-        System.out.println("................setting back pressed........................." );
+        System.out.println("................setting back pressed.........................");
 backpressed=value;
 
     }
@@ -152,13 +208,21 @@ backpressed=value;
 
         return super.onOptionsItemSelected(item);
     }
+    public void runProgress(){
+        progressDialog = new ProgressDialog(MainActivity.this);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage("Connecting ..........");
+        progressDialog.show();
+    }
 
     ////interace removedialog method from the Login_Dialog_Fragment.It returns the user object,which could either represent login or signup depending on the entercode///
     @Override
     public void removeDialog(User user,int entercode) {
-        Log.d(tag,"code value" +entercode);
-        Log.d(tag,"email is " +user.getEmail());
-        Log.d(tag,"password is " +user.getPassword());
+        Log.d(tag, "code value" + entercode);
+        Log.d(tag, "email is " + user.getEmail());
+        Log.d(tag, "password is " + user.getPassword());
         if(entercode == 0)
         login(user);
 
@@ -184,7 +248,7 @@ backpressed=value;
     ///////////signup user for both application  ////////////////////////////////////////
     public void signup(User user){
         storeNamePassword(user.getEmail(),user.getPassword());
-        Log.d(tag,"signedup");
+        Log.d(tag, "signedup");
 
     }
 
@@ -223,6 +287,10 @@ backpressed=value;
         return false;
     }
 
+
+
+
+
     public class LoginSignUpusertoserver extends AsyncTask<User,String,Boolean>
     {
 
@@ -250,8 +318,19 @@ backpressed=value;
     }
 
     @Override
-    protected void onPause() {
+    protected void onPause()
+    {
         super.onPause();
+        sharedPreferenceHelper.setData(HandleFirebase.SELFCHANGED, null);
         backpressed=false;
     }
+
+
+   public static void logout(){
+
+       finishAcitivty.finish();
+   }
+
+
+
 }

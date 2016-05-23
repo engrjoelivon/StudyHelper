@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+
+    android:layout_height="match_parent"
+     >
+<LinearLayout  android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="@dimen/commentpadding"
+    android:paddingLeft="@dimen/commentpadding"
+    android:paddingRight="@dimen/commentpadding"
+    android:orientation="vertical"
+
+
+    >
+
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:inputType="textMultiLine"
+        android:ems="10"
+        android:id="@+id/entercomment"
+        android:layout_weight="0.2"
+        android:gravity="start"
+        />
+
+
+
+    <Button
+        android:layout_weight="0.8"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center_horizontal|center_vertical"
+        android:text="@string/Send_comment"
+        android:textColor="@color/homebackground"
+        android:id="@+id/sendtext"
+        android:layout_marginBottom="20px"
+
+
+        />
+</LinearLayout>
+</ScrollView>

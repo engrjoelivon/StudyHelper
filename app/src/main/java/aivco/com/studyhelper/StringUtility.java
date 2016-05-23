@@ -63,5 +63,32 @@ public class StringUtility {
             return Character.toUpperCase(first) + s.substring(1);
         }
     }
+    /**
+     * <h2>seperateString</h2>
+     * <p>utility method to seperate a string based on a character and add a third string to the position of the
+     * removed string
+     * </p>
+     * <h3>stringtoSeperate</h3>
+     * <p>
+     *  pass in the string to seperate using the seperator
+     *
+     * </p>
+     * <h3>
+     *     seperator
+     * </h3>
+     * <p>character to use to seperate the string</p>
+     * <h3>
+     *     stringtoAdd
+     * </h3>
+     * <p>the new string to add after removing the old string based on the seperator</p>
+     *
+     *
+     * */
+    public static String seperateString(String stringtoSeperate,String seperator,String stringtoAdd)
+    {
+
+        return stringtoAdd+" "+stringtoSeperate.substring(stringtoSeperate.indexOf(seperator),stringtoSeperate.length()).trim();
+
+    }
 
 }

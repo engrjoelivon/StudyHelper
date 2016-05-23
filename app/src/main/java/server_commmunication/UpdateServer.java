@@ -32,11 +32,12 @@ import backend.TitleInfo;
 public class UpdateServer implements Map<String,Object>
 {
 
-    String group,title,priority,difficulty,question,answer,uniquekey,timeCreated,num_of_time_give,given;
+    String group,title,priority,difficulty,question,answer,uniquekey,expiry_date,num_of_time_given,given_or_not,date;
 
 
     public UpdateServer(String group,String title,String priority,
-                        String difficulty,String question,String answer,String unique_key,String timeCreated,String num_of_time)
+                        String difficulty,String question,String answer,String unique_key,String
+                                expiry_date,String num_of_time,String given_or_not,String date)
 
     {
 
@@ -48,8 +49,10 @@ public class UpdateServer implements Map<String,Object>
         this.question=question;
         this.answer=answer;
         this.uniquekey=unique_key;
-        this.timeCreated=timeCreated;
-        this.num_of_time_give=num_of_time;
+        this.expiry_date=expiry_date;
+        this.num_of_time_given=num_of_time;
+        this.given_or_not=given_or_not;
+        this.date=date;
 
 
 
@@ -59,8 +62,17 @@ public class UpdateServer implements Map<String,Object>
 
     }
 
-    public UpdateServer()
+    public UpdateServer(String deleteKey)
     {
+        this.uniquekey=deleteKey;
+
+    }
+
+
+    public Map<String,Object>  setUniqueKey(){
+
+
+        return  myMap(uniquekey);
     }
 
     public Map<String,Object>  setGroup(){
@@ -93,23 +105,37 @@ public class UpdateServer implements Map<String,Object>
 
         return  myMap(difficulty);
     }
-    public Map<String,Object>  setUniqueKey(){
 
-
-        return  myMap(uniquekey);
-    }
     public Map<String,Object>  setNumberOfTimeGiven(){
 
 
-        return  myMap(num_of_time_give);
+        return  myMap(num_of_time_given);
     }
     public Map<String,Object>  setGiven(){
 
 
-        return  myMap(given);
+        return  myMap(given_or_not);
+    }
+    public Map<String,Object>  setDate(){
+
+
+        return  myMap(date);
+    }
+    public Map<String,Object>  setExpiry(){
+
+
+        return  myMap(given_or_not);
+    }
+
+    public Map<String,Object>  setUniqueKeyForDelete(){
+
+
+        return  myMap(null);
     }
 
     public Map<String,Object> myMap(String value){
+
+
         Map<String,Object> thismap=new HashMap<>();
         thismap.put(uniquekey,value);
 
@@ -117,21 +143,6 @@ public class UpdateServer implements Map<String,Object>
         return thismap;
     }
 
-    public String getGiven() {
-        return given;
-    }
-
-    public void setGiven(String given) {
-        this.given = given;
-    }
-
-    public String getNum_of_time_give() {
-        return num_of_time_give;
-    }
-
-    public void setNum_of_time_give(String num_of_time_give) {
-        this.num_of_time_give = num_of_time_give;
-    }
 
     public  Map<String,Object>[] updateValue(String uniquekey,String diff,String priority,String question,String answer)
     {
@@ -146,10 +157,10 @@ public class UpdateServer implements Map<String,Object>
         priormap.put(uniquekey,priority);
 
         Map<String,Object> questionmap=new HashMap<>();
-        questionmap.put(uniquekey,null);
+        questionmap.put(uniquekey,question);
 
         Map<String,Object> answermap=new HashMap<>();
-        answermap.put(uniquekey,null);
+        answermap.put(uniquekey,answer);
 
 
 
@@ -163,6 +174,7 @@ public class UpdateServer implements Map<String,Object>
 
         return mapArray;
     }
+
 
 
 

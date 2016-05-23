@@ -25,8 +25,11 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import backend.TitleInfo;
 
@@ -44,18 +47,20 @@ public class ContentTab extends AppCompatActivity implements AdapterView.OnItemC
     DbManager  dbManager;
     public static final String KEY_CHOSEN_GROUP="ContentTab_GROUP";
     public static final String TITLECONTENTSELECTIONKEY="titlecontent";
-
+    public static AppCompatActivity finishAcitivty;
     public static final String START_ACTIVITY_STRING="aivco.com.studyhelper.ContentTab";
     public String tag="ContentTabactivity";
+    public static boolean loggoutIn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_content_tab);
+        finishAcitivty=this;
         Log.d(tag, "onCreate");
         titleInfo=new TitleInfo(this);
         dbManager=new DbManager(this);
-
+        loggoutIn=true;
 
 
 
@@ -66,7 +71,9 @@ public class ContentTab extends AppCompatActivity implements AdapterView.OnItemC
         super.onResume();
         listView=(ListView)findViewById(R.id.grplistView);
         listView.setOnItemClickListener(this);
-        new GroupLoader().execute();
+        if(loggoutIn)
+
+        { new GroupLoader().execute();}
 
 
     }
@@ -95,9 +102,9 @@ public class ContentTab extends AppCompatActivity implements AdapterView.OnItemC
 
 
             Log.d(tag,"do in backgroud");
-            return titleInfo.collectGroups();
+            //return titleInfo.collectGroups();
 
-            //return titleInfo.collectUniqueGn();
+            return titleInfo.collectUniqueGn();
         }
 
         //add the cursor object to adaptor
@@ -105,22 +112,21 @@ public class ContentTab extends AppCompatActivity implements AdapterView.OnItemC
         protected void onPostExecute(Object o) {
             Log.d(tag, "onpostExecute");
 
+
             super.onPostExecute(o);
-            Cursor c=(Cursor)o;
+           list=(List)o;
 
 
             List<Form> adaptorlist=new ArrayList<>();
-            list=new ArrayList<>();
 
-
-            while(c.moveToNext())
+            for(String gp:list)
             {
                 Form form=new Form();
-                form.setGroup(c.getString(c.getColumnIndex(TitleInfo.groupname_col)));
-                list.add(c.getString(c.getColumnIndex(TitleInfo.groupname_col)));
-               // form.setTitle(c.getString(c.getColumnIndex(TitleInfo.date_col)));
+                form.setGroup(gp);
                 adaptorlist.add(form);
             }
+
+
 
 
 
@@ -141,11 +147,12 @@ public class ContentTab extends AppCompatActivity implements AdapterView.OnItemC
     {
         Log.d(tag, "item clicked");
 
+
         String ans=list.get(i);
         sp=getSharedPreferences("content",MODE_PRIVATE);
         SharedPreferences.Editor editer=sp.edit();
         editer.putString(KEY_CHOSEN_GROUP,ans);
-        editer.commit();
+        editer.apply();
 
         System.out.println(ans + "........................................................." + i);
         Intent intent=new Intent();
@@ -157,9 +164,14 @@ public class ContentTab extends AppCompatActivity implements AdapterView.OnItemC
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.content_tab_menu,menu);
+        getMenuInflater().inflate(R.menu.content_tab_menu, menu);
         return super.onCreateOptionsMenu(menu);
 
 
+    }
+
+    public static void logout(){
+if(finishAcitivty != null)
+        finishAcitivty.finish();
     }
 }

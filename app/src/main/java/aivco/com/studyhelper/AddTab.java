@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.Time;
@@ -19,14 +21,24 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
+
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,6 +51,7 @@ import java.util.Random;
 
 import backend.TitleInfo;
 import server_commmunication.HandleFirebase;
+import server_commmunication.ServerWithIon;
 
 /*
 * Implements onclick listener to handle clicks from save,text and image buttons
@@ -56,7 +69,8 @@ public class AddTab extends AppCompatActivity implements AdapterView.OnItemSelec
     private Create_Group cg;
     TitleInfo titleInfo,titleInfodb;
     private Generate_Question qg;
-    private Button bsave,bText,bImage;
+    private Button bsave;
+    private ImageButton bText,bImage;
     TextView tvgrp,questgrp;
     EditText editText_4_title;
     private  Spinner spinner_Ques,spinner_Grps;
@@ -72,9 +86,9 @@ public class AddTab extends AppCompatActivity implements AdapterView.OnItemSelec
     ImageView  myImage;
     String imagepath;
     HandleFirebase handleFirebase;
-
-
-
+    private ConnectivityManager cm;
+    private String urlInsertRecord="insertrecords/";
+    SharedPreferenceHelper sharedPreferenceHelper;
 
 
 
@@ -83,9 +97,9 @@ public class AddTab extends AppCompatActivity implements AdapterView.OnItemSelec
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_tab);
         Log.d(tag, "onCreate");
-
-        handleFirebase=new HandleFirebase(this,"");///only added the empty string so it does not call the constructor meant for login activity
-
+        sharedPreferenceHelper=new SharedPreferenceHelper(this);
+        //handleFirebase=new HandleFirebase(this,"");///only added the empty string so it does not call the constructor meant for login activity
+        cm=(ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         titleInfo=new TitleInfo(this);
         adv=new AddtabValidator();
 
@@ -95,8 +109,8 @@ public class AddTab extends AppCompatActivity implements AdapterView.OnItemSelec
         questgrp=(EditText)findViewById(R.id.questiontxt);
         editText_4_title=(EditText)findViewById(R.id.editText_4_title);
         bsave=(Button)findViewById(R.id.saveTitles); bsave.setOnClickListener(this);
-        bText=(Button)findViewById(R.id.button_text);bText.setOnClickListener(this);
-        bImage=(Button)findViewById(R.id.button_image); bImage.setOnClickListener(this);
+        bText=(ImageButton)findViewById(R.id.button_text);bText.setOnClickListener(this);
+        bImage=(ImageButton)findViewById(R.id.button_image); bImage.setOnClickListener(this);
         prioritybuttonlow=(RadioButton)findViewById(R.id.low_p); prioritybuttonlow.performClick();
         diff_buttonlow=(RadioButton)findViewById(R.id.diff_low);diff_buttonlow.performClick();
 
@@ -248,14 +262,48 @@ public class AddTab extends AppCompatActivity implements AdapterView.OnItemSelec
         //titleInfo.setQuestionname(adv.getQuesName());   questiontxt
         titleInfo.setQuestionname(questgrp.getText().toString());
         titleInfo.setGroupname(adv.getGroupName());
-        titleInfo.setUnique_Key(new Random().nextLong() + "");
-        //titleInfo.setTimeCreated(getTime());
-        titleInfo.setDate_col(getTime());
+        titleInfo.setUnique_Key(generateUniqueKey());
+        titleInfo.setdateCreated(getTime());
+        titleInfo.setNumber_of_times_visited(0);
+        titleInfo.setGiven_or_not("0");
+        titleInfo.setExpiry_date("0");
+
         titleInfo.insertRows_db();
+        saveInfosToServer();
 
-        SharedPreferenceHelper.setData(HandleFirebase.SELFCHANGED, "changed");
+        sharedPreferenceHelper.setData(HandleFirebase.SELFCHANGED, "changed");
 
 
+
+    }
+
+    public void saveInfosToServer(){
+        if(checkConnection())
+        {
+            System.out.println("there is connection");
+          //postJson();
+            new ServerWithIon(this).postNewRecord(titleInfo,urlInsertRecord);
+
+
+        }
+        else{
+            System.out.println("there is no connection");
+
+        }
+
+    }
+
+
+    public boolean checkConnection()
+    {
+
+
+        NetworkInfo activeNetwork=cm.getActiveNetworkInfo();
+        ///active network will represent the first network that is connected or null if no network is connected.
+
+
+
+        return(activeNetwork != null && activeNetwork.isConnected() );
     }
     ////////returns a date and a time object using a universal zone,UTC so as to synchronise accross all devices and platforms////////
    public String getTime()
@@ -265,20 +313,16 @@ public class AddTab extends AppCompatActivity implements AdapterView.OnItemSelec
 
    return ldt.toString();
    }
-    public static String futuredateTime(DateTimeZone zone,int hrs)
-    {
-        LocalDateTime ldt=null;
-        if(zone==null){
-            ldt=new LocalDateTime();
 
-        }
+    public String generateUniqueKey(){
 
-        else{
-            ldt=new LocalDateTime(zone);
 
-        }
+        long localMillis = new DateTime().toLocalDateTime()
+                .toDateTime(DateTimeZone.UTC).getMillis();
+        String ans=localMillis+" "+new Random().nextLong();
+                System.out.println("..........................uniquekey for this item is............."+ans);
 
-        return ldt.plusHours(hrs).toString();
+    return ans;
     }
 
 
@@ -303,7 +347,6 @@ public class AddTab extends AppCompatActivity implements AdapterView.OnItemSelec
             adv.setGroupName(StringUtility.firstlettercaps(spinnerGps));
             Log.d(tag,spinnerGps);
         }
-
 
 
     }
@@ -415,22 +458,16 @@ public class AddTab extends AppCompatActivity implements AdapterView.OnItemSelec
     }
 
 
-
     @Override
     protected void onPause() {
         super.onPause();
-        SharedPreferenceHelper.setData(HandleFirebase.SELFCHANGED, null);
+        sharedPreferenceHelper.setData(HandleFirebase.SELFCHANGED, null);
         Log.d(tag, "onpause");
     }
     @Override
     protected void onStop() {
         super.onStop();
         Log.d(tag, "onStop");
-    }
-    public void movetodb()
-    {
-
-
     }
 
 

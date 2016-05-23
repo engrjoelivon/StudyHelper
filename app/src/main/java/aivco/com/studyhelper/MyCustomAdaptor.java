@@ -14,7 +14,7 @@ import java.util.List;
 
 
 /**
- * Created by johnanderson1 on 12/28/15.
+ * Created by joel on 12/28/15.
  */
 public class MyCustomAdaptor extends ArrayAdapter {
 
@@ -44,6 +44,7 @@ public class MyCustomAdaptor extends ArrayAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         return customrow(position,convertView,parent);
     }
+
     public View customrow(int position, View convertView, ViewGroup parent){
    View row=inflater.inflate(R.layout.custom_layout_for_view,parent,false);
         TextView name=(TextView)row.findViewById(R.id.custom_layout_tv);

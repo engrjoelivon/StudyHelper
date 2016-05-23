@@ -60,11 +60,11 @@
     <string name="invalid_password">"The password provided does not match,whats on record,pls provide a correct password,or request to reset password."
 
     </string>
-     <string name="user_does_not_exist">"A user with the provided email,does not exist on record.Create a new account if you do not have one."
+     <string name="user_does_not_exist">"A user with the provided email,does not exist on record.Create a new account if you do not have one."</string>
+     <string name="email_or_password_error">"The email or password provided is incorrect  "</string>
 
-    </string>
 
-    <string name="password_reset_response">A temporary password has been sent to the email provided,use the provided password to login.</string>
+    <string name="password_reset_response">A link to generate new password has been sent to the email provided.</string>
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
@@ -120,20 +120,48 @@
     <string name="about">About</string>
     <string name="pref_title_new_message_notifications">New message notifications</string>
 
+    <string name="Send_comment">Send</string>
     <string name="pref_title_ringtone">Ringtone</string>
     <string name="pref_ringtone_silent">Silent</string>
-
+    <string name="suggestion">Suggestions</string>
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="change_username">Change Username</string>
     <string name="password_changed">Password Changed</string>
     <string name="username_changed_error">The Password provided does not match,what is on record</string>
+    <string name="app_settings">App Settings</string>
+    <string name="verify">Verify Account</string>
+
 
 
     <!-- Resource for home page -->
     <string name="answer_hint">Enter answer here</string>
     <string name="start_Text">Click The Button Below To Start</string>
+    <string name="labelQuestion">Question</string>
+    <string name="labelAnswer">Answer</string>
+    <string name="loading_content">Loading Content</string>
+
+
+<!-- title Content -->
+
+    <string name="textUpdated">Record Updated</string>
 
 
 
+    <!-- -->
+    <string name="save_titles"> Save Titles</string>
+
+
+    <!--whole content -->
+    <string name="priority_level">Priority Level</string>
+    <string name="difficulty_level">Difficulty level</string>
+    <string name="difficulty_zero">Zero</string>
+    <string name="low_level">Low</string>
+    <string name="med_level">Med</string>
+    <string name="high_level">High</string>
+
+
+    <!--title fragment -->
+    <string name="search_bar">enter to search</string>
+    <string name="search_result">Search not found</string>
 
 </resources>

@@ -13,42 +13,69 @@
             android:layout_width="match_parent" android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary" app:popupTheme="@style/AppTheme.PopupOverlay"
             >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                >
+
+
+
             <TextView
                 style="@style/fortoolbarTextview"
                 android:id="@+id/tvcontenttoolbar"
+                android:layout_weight="0.6"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:marqueeRepeatLimit="marquee_forever"
+
                 />
+                <ImageButton
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/move"
+                    android:layout_marginLeft="20dp"
+                    android:background="@android:color/transparent"
+                    android:layout_gravity="right"
+                    android:id="@+id/toolbarmove"
+                    android:layout_weight="0.9"
+                    />
             <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:src="@android:drawable/ic_menu_delete"
                 android:layout_marginLeft="20dp"
                 android:background="@android:color/transparent"
                 android:layout_gravity="right"
                 android:id="@+id/toolbardelete"
-
+                android:layout_weight="0.9"
                 />
             <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:src="@android:drawable/ic_menu_edit"
                 android:layout_marginLeft="20dp"
                 android:background="@android:color/transparent"
                 android:layout_gravity="right"
+                android:layout_weight="0.9"
                 android:id="@+id/toolbaredit"
                 />
 
             <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:src="@android:drawable/ic_menu_save"
                 android:background="@android:color/transparent"
                 android:layout_gravity="right"
                 android:visibility="gone"
                 android:layout_marginLeft="20dp"
+                android:layout_weight="0.9"
                 android:id="@+id/toolbarsave"
 
                 />
-
+            </LinearLayout>
 
     </android.support.v7.widget.Toolbar>
 
@@ -61,7 +88,7 @@
         android:layout_gravity="bottom|end" android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/homefab"
 
-
+        app:backgroundTint="@android:color/transparent"
         />
 
 </android.support.design.widget.CoordinatorLayout>

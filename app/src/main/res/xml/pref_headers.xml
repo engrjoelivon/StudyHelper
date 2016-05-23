@@ -24,4 +24,16 @@
         android:icon="@drawable/edit"
         android:title="@string/change_username" />
 
+
+    <header
+        android:fragment="aivco.com.studyhelper.SettingsActivity$Comment"
+        android:icon="@drawable/comment"
+        android:title="@string/suggestion" />
+
+
+
+
+
+
+
 </preference-headers>

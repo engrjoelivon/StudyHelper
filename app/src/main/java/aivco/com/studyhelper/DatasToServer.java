@@ -36,11 +36,11 @@ public class DatasToServer extends HttpConnecter{
         Element formid=doc.getElementById("register_form");  /////project name is form_tutorials
         ///3 obtain all elements under the form id with element tag input
         Elements formtags=formid.getElementsByTag("input");//returns all the element with the tagname input under register form
-        ///create a list to hold all keys and value contained in the form with the id above
+        ///create a list to hold all ServerKeys and value contained in the form with the id above
         List<String> formelements=new ArrayList();
         for(Element element:formtags)
         {
-            ///this loop will merge the keys to thier values.For keys where a value is coming from the user,partition an
+            ///this loop will merge the ServerKeys to thier values.For ServerKeys where a value is coming from the user,partition an
             //condition as done below to add a value,otherwise its default value will be used.
 
             String key = element.attr("name");

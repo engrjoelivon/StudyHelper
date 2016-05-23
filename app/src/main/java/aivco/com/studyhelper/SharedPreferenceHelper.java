@@ -29,7 +29,7 @@ public SharedPreferenceHelper(Context context)
 
         return _sharedPreference.getString(key, DEFAULTSTRINGVALUE);
     }
-    public int getInt(String key)
+    public static int getInt(String key)
     {
 
 

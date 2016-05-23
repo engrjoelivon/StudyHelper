@@ -3,6 +3,7 @@ package server_commmunication;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.database.Cursor;
 
 import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
@@ -12,7 +13,9 @@ import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import aivco.com.studyhelper.LoginActivity;
 import aivco.com.studyhelper.MainActivity;
@@ -53,27 +56,25 @@ public class HandleFirebase {
     public static final String col_ans="answer";
     public static final String col_uniquekey="unique_key";
     public static final String col_date="date_col";
+    public static final String col_expiry="expiry_col";
 
 
 
 
     int result=0;
     String username;
-    String [] devices;
     String firebaseApp="https://amber-heat-4308.firebaseio.com/";
     ProgressDialog pg;
     ArrayList<String> snapshotLIST=new ArrayList<>();
-    private boolean nodevice,alreadychecked;
-    ArrayList<String> devicelist;
+
     SharedPreferenceHelper sharedPreferenceHelper;
-    ArrayList<String> totalDevice;
-    LoginActivity loginActivity;
+
     HandleFirebaseInterface handleFirebaseinterface;
     private boolean selfChanged;
     Context context;
     private String col_num_of_time_given="rep_the_number_of_time_subject_has_been_given";
     private String col_given="rep_if_subject_has_been_shown";//this will either be true or false default is false,and represented with integer 0
-
+    private TitleInfo ti;
     public HandleFirebase(Context context) {
         this.context=context;
 
@@ -277,6 +278,7 @@ return result;
 
 
 
+    //calls to upload record to server,record can be new record or record already stored on device//////
     public void upLoadObject(UpdateServer updateServer)
     {
 
@@ -290,24 +292,46 @@ return result;
         myfirebase.child(username).child(col_ans).updateChildren(updateServer.setAnswer());
         myfirebase.child(username).child(col_diff).updateChildren(updateServer.setDifficulty());
         myfirebase.child(username).child(col_prior).updateChildren(updateServer.setpriority());
-        myfirebase.child(username).child(col_num_of_time_given).setValue(updateServer.setNumberOfTimeGiven());
-        myfirebase.child(username).child(col_given).setValue(updateServer.setGiven());
-
-
-
-
+        myfirebase.child(username).child(col_num_of_time_given).updateChildren(updateServer.setNumberOfTimeGiven());
+        myfirebase.child(username).child(col_given).updateChildren(updateServer.setGiven());
+        myfirebase.child(username).child(col_date).updateChildren(updateServer.setDate());
+        myfirebase.child(username).child(col_expiry).updateChildren(updateServer.setExpiry());
 
     }
+
+    //because ServerKeys cannot bechanged,so new record will be created during updateing while old record will be deleted////
+    public void nullifyOldRecord(UpdateServer updateServer)
+    {
+
+
+        System.out.println(".......................upload server.............");
+        username=SharedPreferenceHelper.getString(MainActivity.USERNAME_KEY);
+        myfirebase.child(username).child(col_uniquekey).updateChildren(updateServer.setUniqueKeyForDelete());
+        myfirebase.child(username).child(col_groups).updateChildren(updateServer.setGroup());
+        myfirebase.child(username).child(col_title).updateChildren(updateServer.setTitle());
+        myfirebase.child(username).child(col_ques).updateChildren(updateServer.setquestion());
+        myfirebase.child(username).child(col_ans).updateChildren(updateServer.setAnswer());
+        myfirebase.child(username).child(col_diff).updateChildren(updateServer.setDifficulty());
+        myfirebase.child(username).child(col_prior).updateChildren(updateServer.setpriority());
+        myfirebase.child(username).child(col_num_of_time_given).updateChildren(updateServer.setNumberOfTimeGiven());
+        myfirebase.child(username).child(col_given).updateChildren(updateServer.setGiven());
+        myfirebase.child(username).child(col_date).updateChildren(updateServer.setDate());
+        myfirebase.child(username).child(col_expiry).updateChildren(updateServer.setExpiry());
+
+    }
+
 
     public void update(Map<String,Object> ...myMap){
         username=SharedPreferenceHelper.getString(MainActivity.USERNAME_KEY);
 
-        System.out.println(".......................upload question.............");
         myfirebase.child(username).child(col_uniquekey).updateChildren(myMap[0]);
         myfirebase.child(username).child(col_diff).updateChildren(myMap[1]);
         myfirebase.child(username).child(col_prior).updateChildren(myMap[2]);
         myfirebase.child(username).child(col_ques).updateChildren(myMap[3]);
         myfirebase.child(username).child(col_ans).updateChildren(myMap[4]);
+        myfirebase.child(username).child(col_given).setValue(myMap[5]);
+        myfirebase.child(username).child(col_date).setValue(myMap[6]);
+        myfirebase.child(username).child(col_num_of_time_given).setValue(myMap[7]);
 
 
     }
@@ -328,268 +352,194 @@ return result;
     public void listenForChangeOnNodes()
     {
         String username=SharedPreferenceHelper.getString(MainActivity.USERNAME_KEY);
-        System.out.println("....................inside listen for node change..........username is..........."+username);
+        System.out.println("....................inside listen for node change..........username is..........." + username);
 
 ///////////////////////////////////listen for change on unique key column///////////////////////////
-        myfirebase.child(username).child(col_uniquekey).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
-            {
-
-                System.out.println("....................new App Created.....................");
-               getDataFromSnapshot(dataSnapshot,TitleInfo.uniquekey_col);
-
-
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-        //////////////////////////listen for change on groups column//////////////////////////////
-        myfirebase.child(username).child(col_groups).addValueEventListener(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
-            {
-
-
-                getDataFromSnapshot(dataSnapshot,TitleInfo.groupname_col);
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-        //////////////////////////listen for change on titlecolumns//////////////////////////////
-        myfirebase.child(username).child(col_title).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
-            {
-
-                System.out.println("....................col_title.....................");
-                getDataFromSnapshot(dataSnapshot,TitleInfo.title_name_col);
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-        //////////////////////////listen for change on groups column//////////////////////////////
-
-        myfirebase.child(username).child(col_ques).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                System.out.println("....................question changed.....................");
-                getDataFromSnapshot(dataSnapshot,TitleInfo.question_col);
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-        //////////////////////////listen for change on groups column//////////////////////////////
-
-        myfirebase.child(username).child(col_ans).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                System.out.println("....................col_ans.....................");
-
-
-                getDataFromSnapshot(dataSnapshot,TitleInfo.answer_col);
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
-
-        myfirebase.child(username).child(col_prior).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                System.out.println("....................col_prior.....................");
-                getDataFromSnapshot(dataSnapshot,TitleInfo.prior_col);
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
-
-        myfirebase.child(username).child(col_diff).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                System.out.println("....................col_diff.....................");
-                getDataFromSnapshot(dataSnapshot,TitleInfo.diff_col);
-            }
-
-            @Override
-
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
-
-
-
-
-
-
-
-    }
-
-
-
-
-
-
-
-
-
-    private void getDataFromSnapshot(DataSnapshot dataSnapshot,String col_name){
-
-
-        if(SharedPreferenceHelper.getString(SELFCHANGED)== null){
-            if(dataSnapshot.getValue() instanceof  String) {return;}
-        Map<String,String> map=(Map)dataSnapshot.getValue();
-        for(String s:map.keySet())
-        { System.out.println("....................getting key.....................");
-            DbService.startAction(activity,s, col_name,map.get(s));
-        }
-        }
-        else{
-
-            System.out.println("....................it is null.....................");
-
-        }
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-    /////////////the method below checks the server to see if the devise has been registered//////////////
-    ////////if it is the first time the application is being used on anydevise the application///////
-    ////////will create a device node////that will hold all devices used by the user/////////////
-    ////////it will also immediately create add the device name to the devices node/////////////
-    /////if the application gets deleted on a system a new devise name will be generated and readded to the///
-    /////devices node on the server////////////////////////////
-
-    public void addDevise(String name)
-    {
-
-        final String devicename=name;
-        System.out.println("...................addDevise....................");
-        snapshotLIST.add(devicename);
-
         myfirebase.child(username).addValueEventListener(new ValueEventListener() {
-
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                GenerateTitle generateTitle=new GenerateTitle();
 
-                Map myList=(Map)dataSnapshot.getValue();
-               // System.out.println("size is"+myList.size());
+                if (SharedPreferenceHelper.getString(SELFCHANGED) == null) {
+                    System.out.println(".....self changed is null.............");
 
-                devicelist = new ArrayList<>();
-                ////////////will be true if device node has not been created/////////////////////
-                if (!dataSnapshot.hasChild(DEVICES)) {
-                    System.out.println("...................child does not exist....................");
-                    myfirebase.child(username).child(DEVICES).setValue(snapshotLIST);
-                    totalDevice = snapshotLIST;
-                    ///////////will only be true if this device has not been added to device list/////////
-                } else if (sharedPreferenceHelper.getString(KEY_FOR_THIS_DEVICE) == null) {
-                    System.out.println("...................device node exist but this device has not been added...................");
-                    devicelist = (ArrayList<String>) dataSnapshot.child(DEVICES).getValue();
-                    ArrayList<String> myarray = new ArrayList<>();
-                    myarray.addAll(devicelist);
-                    myarray.add(devicename);
-                    myfirebase.child(username).child(DEVICES).setValue(myarray);
-                    totalDevice = myarray;
-                    totalDevice = devicelist;
 
-                            /*for (String dev : devicelist) {
-                                nodevice = true;
-                                if (dev.equals(devicename)) {
-                                    System.out.println("...................device node exist but this device have not been added................... " );
-                                    nodevice = false;
-                                    break;
+                    if (dataSnapshot.child(col_uniquekey).getValue() instanceof Map) {
+                        System.out.println(".......its instance of map...........");
+
+
+
+                        ti = new TitleInfo(activity);
+
+
+                        ///////a value of zero means its a new application///////
+                        if (ti.isEmpty())
+                        {
+                            Map<String, Object> myMap = (Map<String, Object>) dataSnapshot.child(col_uniquekey).getValue();
+                            List<CheckForUpdates> checkForUpdatesList = ti.checkUpdate(
+                                    myMap.keySet());
+
+                            for (CheckForUpdates checkForUpdates : checkForUpdatesList) {
+                                ///////////true if local machines needs an update//////
+                                if (checkForUpdates.getUpdateLocal()) {
+
+                                    String keyforlocal = checkForUpdates.getUniquekeyForLocal();
+                                    String keyforother = checkForUpdates.getUniquekeyForOthers();
+                                    System.out.println(".......unique que for local.in updatelocal.........." + keyforlocal);
+                                    System.out.println(".......unique que for oder..........." + keyforother);
+
+                                    Map<String, String> mymap = new HashMap();
+                                    String[] ar = new String[8];
+
+
+                                    ar[0] = (keyforlocal);//key for local
+                                    ar[1] = (keyforother);//key for other
+                                    ar[2] = (getDataFromSnapshot((Map<String, String>) dataSnapshot.child(col_groups).getValue(), keyforother));//
+                                    ar[3] = (getDataFromSnapshot((Map<String, String>) dataSnapshot.child(col_title).getValue(), keyforother));
+                                    ar[4] = (getDataFromSnapshot((Map<String, String>) dataSnapshot.child(col_ques).getValue(), keyforother));
+                                    ar[5] = (getDataFromSnapshot((Map<String, String>) dataSnapshot.child(col_ans).getValue(), keyforother));
+                                    ar[6] = (getDataFromSnapshot((Map<String, String>) dataSnapshot.child(col_diff).getValue(), keyforother));
+                                    ar[7] = (getDataFromSnapshot((Map<String, String>) dataSnapshot.child(col_prior).getValue(), keyforother));
+
+
+                                    DbService.StartUpdateLocal(activity, ar);
+
+
+                                }
+                                //if this case is true,it will mean changes have been made to the code on the local system and will need to be updated//
+                                if (checkForUpdates.getUpdateOther()) {
+                                    SharedPreferenceHelper.setData(HandleFirebase.SELFCHANGED, "changed");  //returned it to null inside mains on pause
+                                    System.out.println(".......unique key for oder..........." + checkForUpdates.getUniquekeyForLocal());
+                                    System.out.println("key for others"+checkForUpdates.getUniquekeyForOthers());
+                                   generateTitle.collateRecord(checkForUpdates.getUniquekeyForLocal(),checkForUpdates.getUniquekeyForOthers());
+
+
+
                                 }
 
-                            }*/
-                    sharedPreferenceHelper.setData(KEY_FOR_THIS_DEVICE, devicename);
+                                if(checkForUpdates.isAddtolocal())
+                                {
+                                    System.out.println(".......ServerKeys to add to local.........." + checkForUpdates.getKeysToAddToLocal());
+
+                                    if (dataSnapshot.child(col_uniquekey).getValue() instanceof Map)
+                                    {
+                                      Map<String,String> keyMap=new HashMap<String, String>();
+                                        keyMap.put(checkForUpdates.getKeysToAddToLocal(),checkForUpdates.getKeysToAddToLocal());
+
+                                        generateTitle.setMyTitleList(
+                                                keyMap,
+                                                (Map<String,String>)dataSnapshot.child(col_uniquekey).getValue(),
+                                                (Map<String,String>)dataSnapshot.child(col_groups).getValue(),
+                                                (Map<String,String>)dataSnapshot.child(col_title).getValue(),
+                                                (Map<String,String>)dataSnapshot.child(col_prior).getValue(),
+                                                (Map<String,String>)dataSnapshot.child(col_diff).getValue(),
+                                                (Map<String,String>)dataSnapshot.child(col_ques).getValue(),
+                                                (Map<String,String>)dataSnapshot.child(col_ans).getValue(),
+                                                (Map<String,String>)dataSnapshot.child(col_date).getValue(),
+                                                (Map<String,String>)dataSnapshot.child(col_num_of_time_given).getValue(),
+                                                (Map<String,String>)dataSnapshot.child(col_given).getValue(),
+                                                (Map<String,String>)dataSnapshot.child(col_expiry).getValue()
+
+                                        );
+
+
+                                    }
+
+
+
+                                }
+
+
+
+
+                                if(checkForUpdates.isAddToOther())
+                                {
+                                    System.out.println(".......ServerKeys to add to server.........." + checkForUpdates.getKeyForNewRecordForOther());
+
+
+                                  generateTitle.setKeyForServer(checkForUpdates.getKeyForNewRecordForOther());
+
+
+                                }
+
+
+
+                            }
+                            generateTitle.addRecord2Server();
+                            generateTitle.upDateRecords();
+
+                        }
+                        ///will respond when local device is new,that is empty//////
+
+                        else {
+
+                            if (dataSnapshot.child(col_uniquekey).getValue() instanceof Map)
+                            {
+
+
+                                generateTitle.setMyTitleList(
+                                        (Map<String,String>)dataSnapshot.child(col_uniquekey).getValue(),
+                                        (Map<String,String>)dataSnapshot.child(col_uniquekey).getValue(),
+                                        (Map<String,String>)dataSnapshot.child(col_groups).getValue(),
+                                        (Map<String,String>)dataSnapshot.child(col_title).getValue(),
+                                        (Map<String,String>)dataSnapshot.child(col_prior).getValue(),
+                                        (Map<String,String>)dataSnapshot.child(col_diff).getValue(),
+                                        (Map<String,String>)dataSnapshot.child(col_ques).getValue(),
+                                        (Map<String,String>)dataSnapshot.child(col_ans).getValue(),
+                                        (Map<String,String>)dataSnapshot.child(col_date).getValue(),
+                                        (Map<String,String>)dataSnapshot.child(col_num_of_time_given).getValue(),
+                                        (Map<String,String>)dataSnapshot.child(col_given).getValue(),
+                                        (Map<String,String>)dataSnapshot.child(col_expiry).getValue()
+
+                                        );
+
+
+                            }
+
+
+
+                           // System.out.println("size of title is"+generateTitle.getTitleList().size());
+
+
+
+
+
+                        }
+
+
+                    }
+
                 }
-                ///////selfchange is true only if the data was added from the same device///////
-                if(!dataSnapshot.hasChild(NODESNAMES))
-                {
-                    Map<String,String> map=new HashMap<>();
-                    map.put("0ne","one");
 
-                    System.out.println("...................node has been created....................");
-                    myfirebase.child(username).child(NODESNAMES).setValue(map);
-
-                }
-
-
-
-
-
-
-
-
-
-
-                System.out.println("...................end of method................... " + nodevice);
 
             }
-
-
-
-
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
 
-                System.out.println("...................there is error................... " + nodevice);
             }
         });
 
 
-
-
-
-
-
-
-        System.out.println("...................end of add device method................... " + nodevice);
     }
 
 
 
 
 
+
+
+
+
+    private String getDataFromSnapshot(Map<String,String>  mymap,String key)
+    {
+
+
+
+       return mymap.get(key);
+
+
+    }
 
 
 
@@ -603,6 +553,166 @@ return result;
         pg.show();
 
     }
+
+    public class GenerateTitle{
+      Title title=null;
+        Map<String,String> titleMaps =null;
+        List<Title> myTitleList=new ArrayList<>();
+        List<String>  keysForLocal;
+        List<String> keysforRecordToUpdateInServer=new ArrayList<>();
+        List<String> keystoDelete =new ArrayList<>();///after ServerKeys have been updated by uploading the newkeys from the local machine the old key and their records would need to be deleted
+
+
+
+        public GenerateTitle( ) {
+
+            keysForLocal=new ArrayList<>();
+
+        }
+
+
+
+
+        public List<Title> getMyTitleList() {
+            return myTitleList;
+        }
+
+
+        /////called to create all the records present in the server in the event of a new  device//or when a new record has been added to the server///
+        ///and needs to be added to the loca devise/////
+        public void setMyTitleList(Map<String,String >  mapKey,Map<String,String >  ...myMaps)
+        {
+            for(String key:mapKey.keySet())
+            {
+                title=new Title();
+                for(int a=0;a<myMaps.length;a++)
+                {
+                    switch(a)
+                    {
+                        case 0:
+                        {titleMaps=myMaps[a];
+                            System.out.println(titleMaps.get(key));
+                            title.setUnique_Key(titleMaps.get(key));
+                            break;
+                        }
+                        case 1:
+                        {titleMaps=myMaps[a];title.setGroupname(titleMaps.get(key));
+                            break;
+                        }
+                        case 2:
+                        {titleMaps=myMaps[a];title.setTitle_name(titleMaps.get(key));
+                            break;
+                        }
+                        case 3:
+                        {titleMaps=myMaps[a];title.setPriority_level(Integer.parseInt(titleMaps.get(key)));
+                            break;}
+                        case 4:
+                        {titleMaps=myMaps[a];title.setDifficulty_level(Integer.parseInt(titleMaps.get(key)));
+                            break;}
+                        case 5:
+                        {titleMaps=myMaps[a];title.setQuestionname(titleMaps.get(key));
+                            break;}
+                        case 6:
+                        {titleMaps=myMaps[a];title.setAnswer(titleMaps.get(key));
+                            break;}
+                        case 7:
+                        {titleMaps=myMaps[a];title.setdateCreated(titleMaps.get(key));
+                            if(titleMaps.get(key) != null)
+                            {
+                                System.out.println(titleMaps.get(key));
+                            }
+                            break;}
+                        case 8:
+                        {titleMaps=myMaps[a];
+                            if(titleMaps.get(key)!= null)
+                            {
+                                title.setNumber_of_times_visited(Integer.parseInt(titleMaps.get(key)));
+                            }
+
+
+                            break;}
+                        case 9:
+                        {titleMaps=myMaps[a];
+                            if(titleMaps.get(key)!= null)
+                            {
+                                title.setGiven_or_not((titleMaps.get(key)));
+                            }
+
+                            break;}
+
+                        case 10:
+                        {titleMaps=myMaps[a];
+                            if(titleMaps.get(key)!= null)
+                            {
+                                title.setExpiry_date((titleMaps.get(key)));
+                            }
+
+                            break;}
+
+
+
+
+                    }
+
+                }
+                myTitleList.add(title);
+
+
+            }
+
+
+            ti.insertAllRows(this.getMyTitleList());
+
+
+
+        }
+
+        ////called when new records need to be uploaded to the server//by default this should happen automartically//but in the event
+        //of network failure and phone going off,during next start up of phone it check this and reloads the server/////
+        public void setKeyForServer(String keyForLocal){
+            keysForLocal.add(keyForLocal);
+
+        }
+
+        ///addRecord2Server() is finally called to push records to server//////
+        public void addRecord2Server()
+        {
+
+            if(keysForLocal.size()>0)
+            {
+                SharedPreferenceHelper.setData(HandleFirebase.SELFCHANGED, "changed");  //returned it to null inside mains on pause
+               ti.getRowTable(keysForLocal) ;
+
+
+
+            }
+
+
+
+        }
+
+
+        public void collateRecord(String key,String keyToDelete)
+        {
+            keysforRecordToUpdateInServer.add(key);
+            keystoDelete.add(keyToDelete);
+
+        }
+
+        /////////////////this method will be called to update already existing records on the server,changes would have been made on this
+        ///records from the local devise////
+        public void upDateRecords(){
+            if(keysforRecordToUpdateInServer.size() > 0)
+            {
+
+                ti.getRowTable(keysforRecordToUpdateInServer,keystoDelete) ;
+            }
+
+
+        }
+
+    }
+
 
 
 }

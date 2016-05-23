@@ -3,6 +3,7 @@ package aivco.com.studyhelper;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -34,19 +35,21 @@ import android.widget.TextView;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 
+import org.joda.time.LocalDateTime;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import server_commmunication.HandleFirebase;
-import server_commmunication.HandleFirebaseInterface;
+import server_commmunication.*;
+import server_commmunication.User;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>, HandleFirebaseInterface{
+public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor>, HandleFirebaseInterface,LogingInRegisteringResult,OnClickListener{
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -74,9 +77,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private static final int REQUESTPASSWORDRESET=3;
     private int loginOrRegister;
     private HandleFirebase handleFirebase;
-    static int outCome=0;
     String email,password;
-
     private TextView result;
     private Button changePassword,requestpasswordchange,mEmailRegisterButton,mEmailSignInButton,returntologin;
     private EditText oldpassword,newpassword,repeatpassword;
@@ -88,7 +89,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
         ///the line below hides the battery,the network and the time////
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+        generateDeviseName();
         result=(TextView)findViewById(R.id.result);
         oldpassword=(AutoCompleteTextView)findViewById(R.id.oldpassword);
         oldpasswordlayout=(TextInputLayout)findViewById(R.id.oldpasswordTextInputLayout);
@@ -98,6 +99,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         repeatpasswordlayout=(TextInputLayout)findViewById(R.id.repeatpasswordTextInputLayout);
         emailLayout=(TextInputLayout)findViewById(R.id.emailTextInputLayout);
         passwordLayout=(TextInputLayout)findViewById(R.id.passwordTextInputLayout);
+
         returntologin=(Button)findViewById(R.id.returntologin);
         returntologin.setOnClickListener(new OnClickListener() {
             @Override
@@ -107,36 +109,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
         requestpasswordchange=(Button)findViewById(R.id.access_to_change_password);
-        requestpasswordchange.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-              enableDisablePasswordChange();
-
-
-            }
-        });
+        requestpasswordchange.setOnClickListener(this);
         changePassword=(Button)findViewById(R.id.change_password);
-        changePassword.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                View focusView=null;
-                // Check for a valid email address.
-                if (TextUtils.isEmpty(email)) {
-                    mEmailView.setError(getString(R.string.error_field_required));
-                    mEmailView.requestFocus();
-                    return;
-
-
-
-                } else if (!isEmailValid(email)) {
-                    mEmailView.setError(getString(R.string.error_invalid_email));
-                    mEmailView.requestFocus();
-
-                }
-                handleFirebase.resetPassword(email);
-            }
-        });
+        changePassword.setOnClickListener(this);
 
 
 
@@ -314,13 +289,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             switch (loginOrRegister){
                 case LOGIN:{
                     System.out.println(".......................Will be loogging on.....................");
-                    handleFirebase.logInToFirebase(email,password);
-
+                   //handleFirebase.logInToFirebase(email,password); //commented on the 8th
+                  new ServerWithIon(this,new StudyHelperUser(email,password)).logIn();
                     break;}
                 case REGISTER:{
                     System.out.println(".......................doInBackground register.....................");
-                    handleFirebase.registerToFirebase(email,password);
-
+                   // handleFirebase.registerToFirebase(email,password);//commented on the 8th
+                    new ServerWithIon(this,new StudyHelperUser(email,password)).signUp();
                     break;}
 
 
@@ -426,7 +401,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     @Override
-    public  void login(int code) {
+    public  void login(int code)
+    {
         switch(code){
             case HandleFirebase.SUCCESS:{
                 System.out.println("................firbasehandlerInterface.......SUCCESS.....................");
@@ -437,6 +413,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                 SharedPreferenceHelper.setData(MainActivity.MYEMAIL, email);
                 SharedPreferenceHelper.setData(MainActivity.MYPASSWORD, password);
+                if(SharedPreferenceHelper.getString(MainActivity.DEVICENAME)==null)
+                {
+                    System.out.println("....................setting device name.....................");
+
+                    SharedPreferenceHelper.setData(MainActivity.DEVICENAME, android.os.Build.MODEL + " " + new LocalDateTime().toString());
+
+                }
 
 
                 System.out.println("................my email is..after is..................." + SharedPreferenceHelper.getString(MainActivity.MYEMAIL));
@@ -467,7 +450,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     @Override
     public void reg(int code,Map<String, Object> res) {
-        System.out.println("....................firbasehandlerInterface...SUCCESS.....................");
+        System.out.println("....................firbasehandlerInterface...SUCCESS.....on reg................");
 
 
         SharedPreferenceHelper.removeData(MainActivity.MYEMAIL);
@@ -475,6 +458,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         SharedPreferenceHelper.setData(MainActivity.MYEMAIL, email);
         SharedPreferenceHelper.setData(MainActivity.MYPASSWORD, password);
+        if(SharedPreferenceHelper.getString(MainActivity.DEVICENAME)==null)
+        {
+            SharedPreferenceHelper.setData(MainActivity.DEVICENAME, android.os.Build.MODEL + " " + new LocalDateTime().toString());
+
+
+        }
+
 
         MainActivity.USERNAME=email;
         finish(); }
@@ -538,6 +528,109 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
        // super.onBackPressed();
     }
 
+
+
+    @Override
+   public void successOrFailed(int code)
+    {
+        System.out.println("....................back int...succes or failed.....................");
+
+        switch(code){
+            case EMAILALREADYEXIST:{
+                requestpasswordchange.setVisibility(View.VISIBLE);
+                result.setVisibility(View.VISIBLE);
+                result.setText(getResources().getString(R.string.email_taken));
+                break;
+            }
+
+            case NETWORKERROR:
+            {
+                result.setVisibility(View.VISIBLE);
+                result.setText(getResources().getString(R.string.connection_error));
+                break;
+
+            }
+            case EMAIL0RPASSWORDERROR:
+            {
+                requestpasswordchange.setVisibility(View.VISIBLE);
+
+                result.setVisibility(View.VISIBLE);
+                result.setText(getResources().getString(R.string.email_or_password_error));
+                break;
+            }
+            case LOGINSUCCESS:
+            {
+                System.out.println("....................succesfully ..LOGGED IN...................");
+                new ServerWithIon(this).atFirstStarting();
+
+                break;
+            }
+            case UPDATE:{
+                System.out.println("....................completed update.....................");
+                finish();
+                break;
+            }
+            case REGSUCCESS:{
+                System.out.println("....................succesfully REGISTERED.....................");
+                finish();
+                break;
+            }
+            case RESETPASSWORDLINKSENT:{
+                result.setVisibility(View.VISIBLE);
+                result.setText(getResources().getString(R.string.password_reset_response));
+                break;
+
+
+
+            }
+
+
+
+        }
+
+    }
+
+    @Override
+    public void resetOrVerify(String urlToResetOrVerifyUser) {
+
+    }
+
+    @Override
+    public void onClick(View v) {
+
+        switch(v.getId())
+        {
+            case R.id.access_to_change_password:
+            {
+                enableDisablePasswordChange();
+                break;
+            }
+
+            case R.id.change_password:
+            {
+                View focusView=null;
+                // Check for a valid email address.
+                if (TextUtils.isEmpty(email)) {
+                    mEmailView.setError(getString(R.string.error_field_required));
+                    mEmailView.requestFocus();
+                    return;
+
+
+
+                } else if (!isEmailValid(email))
+                 {
+                    mEmailView.setError(getString(R.string.error_invalid_email));
+                    mEmailView.requestFocus();
+
+                 }
+                new ServerWithIon(this).resetPassword(email);
+                break;
+            }
+
+        }
+
+    }
+
     private interface ProfileQuery {
         String[] PROJECTION = {
                 ContactsContract.CommonDataKinds.Email.ADDRESS,
@@ -548,9 +641,36 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         int IS_PRIMARY = 1;
     }
 
+    public static class StudyHelperUser implements User {
+        String username,password;
+
+        public  StudyHelperUser(String username,String password) {
+            this.password = password;
+            this.username = username;
+        }
+
+        @Override
+        public String getUsername() {
+            return username;
+        }
+
+        @Override
+        public String getPassword() {
+            return password;
+        }
+    }
 
 
+    public void generateDeviseName()
+    {
+        if(SharedPreferenceHelper.getString(MainActivity.DEVICENAME)==null)
+        {
+            System.out.println("....................setting device name.....................");
 
+            SharedPreferenceHelper.setData(MainActivity.DEVICENAME, android.os.Build.MODEL + " " + new LocalDateTime().toString());
+
+        }
+    }
 }
 
 

@@ -26,6 +26,7 @@ import android.content.Intent;
 import java.util.ArrayList;
 import java.util.List;
 
+import backend.Title;
 import backend.TitleInfo;
 
 
@@ -39,14 +40,19 @@ public class TitleFragmentFragment extends Fragment implements AdapterView.OnIte
     TitleInfo ti;
     List<String> list;
     DbManager dbManager;
-    SimpleCursorAdapter simpleCursorAdapter;
+    static View view;
+
     public TitleFragmentFragment() {
     }
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        if(view == null)
         return inflater.inflate(R.layout.fragment_title_fragment, container, false);
+    return view;
     }
 
     @Override
@@ -88,27 +94,17 @@ public class TitleFragmentFragment extends Fragment implements AdapterView.OnIte
 
 
          ///calls collectUnique from titleInfo class,this will return only unique rows from the table
-            return ti.collectUniqueTn(ContentTab.sp.getString(ContentTab.KEY_CHOSEN_GROUP, ""));
+            //return ti.collectUniqueTn(ContentTab.sp.getString(ContentTab.KEY_CHOSEN_GROUP, ""));
+            return ti.collectTitles(ContentTab.sp.getString(ContentTab.KEY_CHOSEN_GROUP, ""));
         }
         //add the cursor object to adaptor
         @Override
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
         ///set the adaptor here
+            //setList(o);
+            setListFromTitle(o);
 
-          list=(List)o;
-            List<Form> adaptorlist=new ArrayList<>();
-
-
-            for(String formElement:list)
-            {
-                Form form=new Form();
-                form.setGroup(formElement);
-                adaptorlist.add(form);
-
-            }
-            CustomAdaptorForListView  arr=new CustomAdaptorForListView(getActivity(),R.layout.background_for_group_content,adaptorlist);
-            ls.setAdapter(arr);
 
         }
 
@@ -127,7 +123,47 @@ public class TitleFragmentFragment extends Fragment implements AdapterView.OnIte
     public interface StartTitleContent
     {
 
-      public void startSecActivity(String title);
+      void startSecActivity(String title);
 
     }
+
+    public void setList(Object o){
+        list=(List)o;
+        List<Form> adaptorlist=new ArrayList<>();
+
+
+        for(String formElement:list)
+        {
+            Form form=new Form();
+            form.setGroup(formElement);
+            adaptorlist.add(form);
+
+        }
+        CustomAdaptorForListView  arr=new CustomAdaptorForListView(getActivity(),
+                R.layout.background_for_group_content,adaptorlist);
+        ls.setAdapter(arr);
+
+    }
+    public void setListFromTitle(Object o)
+    {
+        list=new ArrayList<>();
+      List<Title>   titles=(List)o;
+        List<Form> adaptorlist=new ArrayList<>();
+        for(Title title:titles)
+        {
+            Form form=new Form();
+            form.setGroup(title.getTitle_name());
+            list.add(title.getUnique_Key());
+            adaptorlist.add(form);
+
+        }
+        CustomAdaptorForListView  arr=new CustomAdaptorForListView(getActivity(),
+                R.layout.background_for_group_content,adaptorlist);
+        ls.setAdapter(arr);
+
+
+    }
+
+
+
 }

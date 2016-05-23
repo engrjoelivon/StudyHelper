@@ -36,11 +36,20 @@ public class CustomAdaptorForListView extends ArrayAdapter<Form> {
     }
 
     public View createView(int position, View convertView, ViewGroup parent){
-
+   System.out.println("position is..........................................................."+position);
         View view=inflater.inflate(R.layout.background_for_group_content,parent,false) ;
-              TextView groupname=(TextView)view.findViewById(R.id.groupname);
+           final   TextView groupname=(TextView)view.findViewById(R.id.groupname);
               TextView date=(TextView)view.findViewById(R.id.date);
               TextView titlename=(TextView)view.findViewById(R.id.titlesname);
+        groupname.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("setOnClickListener is..........................................................."+groupname.getText().toString());
+
+
+
+            }
+        });
         Form myform=form.get(position);
         groupname.setText(myform.getGroup());
        date.setText(myform.getTitle());
