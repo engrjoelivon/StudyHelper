@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    >
+
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white_background"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="50dp"
+
+
+
+    >
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/color_background"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        >
+
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="40dp"
+            android:id="@+id/textLayout"
+            >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/priority_level"
+                android:textSize="12sp"
+                android:textColor="@color/buttonclicked"
+                android:textStyle="bold|italic"
+                android:id="@+id/priorLabel"
+                android:layout_weight="0.10"/>
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:inputType="number"
+                android:background="@null"
+                android:ems="1"
+                android:id="@+id/priority_level"
+                android:layout_weight="0.10"
+                />
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/difficulty_level"
+                android:textSize="12sp"
+                android:id="@+id/difflabel"
+                android:textStyle="bold|italic"
+                android:layout_weight="0.10"
+                android:textColor="@color/buttonclicked"
+
+                />
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/diff_level"
+                android:focusable="false"
+                android:ems="1"
+                android:inputType="number"
+                android:background="@null"
+                android:layout_weight="0.10"
+                />
+
+        </LinearLayout>
+
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:orientation="vertical"
+            android:visibility="gone"
+
+            android:id="@+id/radio4diff">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/difficulty_level"
+                android:textSize="12sp"
+                android:textStyle="bold|italic"
+                android:id="@+id/text"
+
+                />
+
+            <RadioGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/low_level"
+                    android:id="@+id/diff_low"
+                    android:onClick="onRadioButtonClicked"
+                    />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/med_level"
+                    android:id="@+id/diff_med"
+                    android:onClick="onRadioButtonClicked"
+                    />
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/high_level"
+                    android:id="@+id/diff_high"
+                    android:onClick="onRadioButtonClicked"
+
+                    />
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/difficulty_zero"
+                    android:id="@+id/diff_zero"
+                    android:onClick="onRadioButtonClicked"
+
+                    />
+            </RadioGroup>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/priority_level"
+                android:textSize="12sp"
+                android:textStyle="bold|italic"
+                />
+
+            <RadioGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/radio4priority"
+                android:orientation="horizontal"
+                >
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/low_level"
+                    android:id="@+id/low_p"
+                    android:onClick="onRadioButtonClicked"
+                    />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/med_level"
+                    android:id="@+id/med_p"
+                    android:onClick="onRadioButtonClicked"
+
+                    />
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/high_level"
+                    android:id="@+id/high_p"
+                    android:onClick="onRadioButtonClicked"
+                    />
+
+
+
+            </RadioGroup>
+
+        </LinearLayout>
+
+
+
+
+
+
+
+
+
+
+        <LinearLayout android:focusable="true"
+            android:focusableInTouchMode="true" android:layout_width="0px"
+            android:layout_height="0px" />
+
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:text="@string/labelQuestion"
+            android:id="@+id/show_question_whole"
+            android:gravity="left"
+            android:focusableInTouchMode="false"
+            android:textStyle="bold"
+            android:textSize="@dimen/regularText"
+            android:layout_marginBottom="20dp"
+            style="text-decoration: underline;"
+
+            />
+
+
+
+
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:hint="@string/answer_hint"
+            android:focusableInTouchMode="false"
+            android:textSize="@dimen/regularText"
+            android:id="@+id/show_ans_whole"
+
+            />
+
+
+
+
+
+
+    </LinearLayout>
+
+</ScrollView>
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        android:layout_gravity="bottom"
+        >
+
+        <android.support.v7.widget.Toolbar android:id="@+id/toolbar"
+            android:layout_width="match_parent" android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            >
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                >
+
+
+
+                <Button
+                    style="@style/fortoolbarTextview"
+                    android:id="@+id/back_button"
+                    android:layout_weight="0.6"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:text="@string/back_button"
+                    android:background="@android:color/transparent"
+
+                    />
+                <ImageButton
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/move"
+                    android:layout_marginLeft="20dp"
+                    android:background="@android:color/transparent"
+                    android:layout_gravity="right"
+                    android:id="@+id/toolbarmove"
+                    android:layout_weight="0.9"
+                    />
+                <ImageButton
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@android:drawable/ic_menu_delete"
+                    android:layout_marginLeft="20dp"
+                    android:background="@android:color/transparent"
+                    android:layout_gravity="right"
+                    android:id="@+id/toolbardelete"
+                    android:layout_weight="0.9"
+                    />
+                <ImageButton
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@android:drawable/ic_menu_edit"
+                    android:layout_marginLeft="20dp"
+                    android:background="@android:color/transparent"
+                    android:layout_gravity="right"
+                    android:layout_weight="0.9"
+                    android:id="@+id/toolbaredit"
+                    />
+
+                <ImageButton
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@android:drawable/ic_menu_save"
+                    android:background="@android:color/transparent"
+                    android:layout_gravity="right"
+                    android:visibility="gone"
+                    android:layout_marginLeft="20dp"
+                    android:layout_weight="0.9"
+                    android:id="@+id/toolbarsave"
+
+                    />
+            </LinearLayout>
+
+        </android.support.v7.widget.Toolbar>
+
+    </android.support.design.widget.AppBarLayout>
+
+</FrameLayout>

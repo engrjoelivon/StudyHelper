@@ -15,16 +15,10 @@
             android:titleTextColor="@color/colorPrimaryDark"
 
             app:popupTheme="@style/AppTheme.PopupOverlay" >
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:weightSum="1"
-                >
+
                 <TextView
                     style="@style/fortoolbarTextview"
                     android:id="@+id/toolbartv"
-                    android:layout_weight="0.3"
                     android:singleLine="true"
                     android:ellipsize="marquee"
                     android:marqueeRepeatLimit="marquee_forever"
@@ -33,27 +27,21 @@
 
 
 
-                <EditText
-                    style="@style/fortoolbarTextview"
-                    android:src="@android:drawable/ic_menu_search"
-                    android:layout_gravity="end"
-                    android:hint="@string/search_bar"
-                    android:layout_marginEnd="20dp"
-                    android:scrollHorizontally="true"
-                    android:id="@+id/searchbar"
-                    android:layout_weight="0.3"
-                    />
-
-                <ImageButton
-                    style="@style/fortoolbarTextview"
-                    android:src="@android:drawable/ic_menu_search"
-                    android:layout_gravity="end"
-                    android:id="@+id/searchicon"
-                    android:layout_weight="0.2"
-                    />
 
 
-            </LinearLayout>
+
+
+             <SearchView
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:id="@+id/search_view"
+                 android:layout_gravity="end"
+                 android:layout_marginRight="10dp"
+                 android:iconifiedByDefault="false"
+                 android:focusableInTouchMode="true"
+                 />
+
+
 
             </android.support.v7.widget.Toolbar>
 

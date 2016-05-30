@@ -21,16 +21,15 @@ public class MyCustomAdaptor extends ArrayAdapter {
     public List<String> data;
     public Resources res;
     public Activity spinnerWithCustomAdapter;
+    private int resource;
     LayoutInflater inflater;
-    public MyCustomAdaptor(Activity activitySpinner,
-                           int textViewResourceId,
-                           List objects
-    ) {
+    public MyCustomAdaptor(Activity activitySpinner, int textViewResourceId, List objects)
+    {
         super(activitySpinner, textViewResourceId, objects);
         inflater = (LayoutInflater)activitySpinner.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         spinnerWithCustomAdapter=activitySpinner;
         this.data=objects;
-
+        this.resource=textViewResourceId;
     }
 
     @Override
@@ -46,7 +45,7 @@ public class MyCustomAdaptor extends ArrayAdapter {
     }
 
     public View customrow(int position, View convertView, ViewGroup parent){
-   View row=inflater.inflate(R.layout.custom_layout_for_view,parent,false);
+   View row=inflater.inflate(resource,parent,false);
         TextView name=(TextView)row.findViewById(R.id.custom_layout_tv);
         name.setClickable(false);
         name.setText(data.get(position));

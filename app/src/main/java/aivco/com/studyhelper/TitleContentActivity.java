@@ -68,7 +68,8 @@ public class TitleContentActivity extends AppCompatActivity implements View.OnCl
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_title_content);
         finishAcitivty=this;
-        h = new Handler(new Handler.Callback() {
+        h = new Handler(new Handler.Callback()
+        {
             @Override
             public boolean handleMessage(Message message) {
                 int a = message.what;

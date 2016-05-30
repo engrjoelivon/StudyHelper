@@ -88,10 +88,6 @@ public class TitleContentActivityFragment extends Fragment  {
                 ti.setExpiry_date(expiryDate);
                 ti.setGiven_or_not(givenOrNot);
                 ti.setNumber_of_times_visited(numOfTimeShown);
-
-
-
-
                 ti.upDateRow(this_id);
 
                 Toast.makeText(getActivity(),getResources().getString(R.string.textUpdated),Toast.LENGTH_SHORT).show();

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="10dp"
+    android:layout_marginTop="0dp"
+    android:paddingTop="20dp"
+
+    >
+
+
+
+    <TextView
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/difficulty_rate"
+        android:layout_alignParentTop="true"
+        android:textStyle="bold|italic"
+        android:textColor="@color/heading"
+        android:id="@+id/difficulty_rate"
+
+        />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/difficulty_rate"
+        android:layout_alignLeft="@+id/difficulty_rate"
+        android:id="@+id/difficulty_rate_value"
+
+
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/priority_rate"
+        android:textStyle="bold|italic"
+        android:id="@+id/priority_name"
+        android:textColor="@color/heading"
+        android:layout_below="@+id/difficulty_rate_value"
+
+
+        />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/priority_name"
+        android:layout_alignLeft="@+id/difficulty_rate"
+        android:id="@+id/priority_value"
+
+        />
+
+
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/zero_count"
+        android:textStyle="bold|italic"
+        android:id="@+id/zero_diff"
+        android:textColor="@color/heading"
+        android:layout_below="@+id/priority_value"
+
+
+        />
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/zero_diff_value"
+        android:layout_below="@+id/zero_diff"
+        />
+
+
+
+
+    <ImageButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:layout_gravity="bottom"
+        android:id="@+id/backbutton"
+        android:src="@drawable/backcolored"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        />
+
+
+
+</RelativeLayout>
+
+
+

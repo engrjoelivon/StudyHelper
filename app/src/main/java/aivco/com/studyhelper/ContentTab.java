@@ -1,5 +1,6 @@
 package aivco.com.studyhelper;
 
+import android.app.FragmentManager;
 import android.app.ListFragment;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
@@ -11,6 +12,8 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,7 +42,8 @@ import backend.TitleInfo;
 *
 * */
 
-public class ContentTab extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class ContentTab extends AppCompatActivity implements AdapterView.OnItemClickListener,TitleFragmentFragment.StartTitleContent,FragmentForTitles.StartTitleContent,FragmentForTitleContent.OnFragmentInteractionListener {
+    private static final String HOMEFRAGMENT = "homefragment";
     TitleInfo titleInfo;
     ListView listView;
     List<String> list;
@@ -51,11 +55,13 @@ public class ContentTab extends AppCompatActivity implements AdapterView.OnItemC
     public static final String START_ACTIVITY_STRING="aivco.com.studyhelper.ContentTab";
     public String tag="ContentTabactivity";
     public static boolean loggoutIn;
+    android.support.v4.app.FragmentManager fm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_content_tab);
+        fm=getSupportFragmentManager();
         finishAcitivty=this;
         Log.d(tag, "onCreate");
         titleInfo=new TitleInfo(this);
@@ -78,7 +84,39 @@ public class ContentTab extends AppCompatActivity implements AdapterView.OnItemC
 
     }
 
-    class GroupLoader extends AsyncTask
+    //method from titlefragmentfragment
+    @Override
+    public void startSecActivity(String title)
+    {
+        System.out.println("..............title chosen.................." +title);
+        fm.popBackStack();
+        SharedPreferenceHelper.setData(ContentTab.TITLECONTENTSELECTIONKEY, title);
+        startContentFragment();
+    }
+
+    @Override
+    public void closeFragment()
+    {
+        fm.popBackStack();
+            System.out.println("..............closeing fragment..................");
+
+    }
+
+    //method from fragment for title content
+    @Override
+    public void onFragmentInteraction(String message)
+    {
+
+    }
+
+    @Override
+    public void closeContent()
+    {
+        fm.popBackStack();
+        startTitleFragment();
+    }
+
+    private class GroupLoader extends AsyncTask
     {
 
 
@@ -145,7 +183,7 @@ public class ContentTab extends AppCompatActivity implements AdapterView.OnItemC
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
 
     {
-        Log.d(tag, "item clicked");
+
 
 
         String ans=list.get(i);
@@ -153,12 +191,11 @@ public class ContentTab extends AppCompatActivity implements AdapterView.OnItemC
         SharedPreferences.Editor editer=sp.edit();
         editer.putString(KEY_CHOSEN_GROUP,ans);
         editer.apply();
+        startTitleFragment();
+        //startTitleClass();
 
-        System.out.println(ans + "........................................................." + i);
-        Intent intent=new Intent();
-        intent.setClass(this, TitleFragment.class);
-        intent.putExtra(START_ACTIVITY_STRING,ans);
-        startActivity(intent);
+
+
 
     }
 
@@ -173,5 +210,38 @@ public class ContentTab extends AppCompatActivity implements AdapterView.OnItemC
     public static void logout(){
 if(finishAcitivty != null)
         finishAcitivty.finish();
+    }
+
+
+    private void startTitleFragment()
+    {
+        startFragment(new FragmentForTitles(),HOMEFRAGMENT);
+
+    }
+
+    private void startContentFragment()
+    {
+        startFragment(new FragmentForTitleContent(),HOMEFRAGMENT);
+    }
+
+    private void startFragment(Fragment fragment,String backstack)
+    {
+        android.support.v4.app.FragmentTransaction ft=fm.beginTransaction();
+        ft.addToBackStack(backstack);
+        ft.replace(android.R.id.content,fragment);
+        ft.commit();
+
+
+    }
+
+    //start class to display title all titles available in the clicked group
+    private void startTitleClass()
+    {
+        Intent intent=new Intent();
+        intent.setClass(this, TitleFragment.class);
+        //intent.putExtra(START_ACTIVITY_STRING,ans);
+        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        startActivity(intent);
+
     }
 }

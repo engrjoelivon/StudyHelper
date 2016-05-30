@@ -15,6 +15,7 @@ import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -34,19 +35,62 @@ import backend.TitleInfo;
  * Recieves execution order from Titlefragment loads the title from the titleinfo db
  */
 public class TitleFragmentFragment extends Fragment implements AdapterView.OnItemClickListener {
-    private String log="TitleFragmentFragment";
+    public static String log="TitleFragmentFragment";
     private ListView ls;
     private StartTitleContent startTitleContent;
     TitleInfo ti;
     List<String> list;
     DbManager dbManager;
     static View view;
+    private List<Title>   titleList;
+    List<Title>   finalTitleList;
+    private List<Form>   myAdaptorList;
+    private List<String>  itemList;
+    private TitleFragment titleFragment;
+    private CustomAdaptorForListView arr;
+    private boolean startSearch=false;
+    private HandleSearching handleSearching;//utility class to handle searching functions
+    private ContentTab contentTab;
 
     public TitleFragmentFragment() {
     }
 
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
+        HandleSearch handleSearch=new HandleSearch() {
+            @Override
+            public void close() {
+
+                repopulateAdaptor(arr,new String());
+                startSearch=false;
+            }
+
+            @Override
+            public void searchText(String search)
+            {
+                Log.d(log,"handleSearch recieved text "+search);
+                if(search.isEmpty())
+                {
+                    repopulateAdaptor(arr,SearchingUtility.isEmpty);
+                }
+                else{
+                    startSearch=true;
+                    repopulateAdaptor(arr,search);
+
+                }
+
+            }
+        };
+
+        //just commented
+        titleFragment.setSearchInterface(handleSearch); //passes handlesearch interface to titlefragment class
+
+
+
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -74,12 +118,17 @@ public class TitleFragmentFragment extends Fragment implements AdapterView.OnIte
     {
         Log.d(log,"onitemclicked");
         String ans=list.get(i);
-       // Cursor s=(Cursor) ls.getItemAtPosition(i);
-        //String ans=dbManager.getSelectedTitleRow(s,i) ;
-      if(startTitleContent != null)
-        startTitleContent.startSecActivity(ans);
 
-    }
+      if(startTitleContent != null && !startSearch )
+        startTitleContent.startSecActivity(ans);
+        else
+      {
+          Log.d(log,"position clicked is"+i);
+
+          startTitleContent.startSecActivity(handleSearching.getKey(i));
+
+      }
+       }
     class TitleLoader extends AsyncTask
     {
         @Override
@@ -115,8 +164,11 @@ public class TitleFragmentFragment extends Fragment implements AdapterView.OnIte
     }
 
     @Override
-    public void onAttach(Activity activity) {
+    public void onAttach(Activity activity)
+    {
         super.onAttach(activity);
+        titleFragment=(TitleFragment)activity;
+        //contentTab=(ContentTab)activity;
         startTitleContent=(StartTitleContent)activity;
     }
 
@@ -127,43 +179,98 @@ public class TitleFragmentFragment extends Fragment implements AdapterView.OnIte
 
     }
 
-    public void setList(Object o){
+    public void setList(Object o)
+    {
         list=(List)o;
         List<Form> adaptorlist=new ArrayList<>();
 
 
+
+
+        //generate Listform to be added to custom adaptor
         for(String formElement:list)
         {
             Form form=new Form();
             form.setGroup(formElement);
             adaptorlist.add(form);
 
+
         }
+        myAdaptorList=new ArrayList<>(adaptorlist);
+
         CustomAdaptorForListView  arr=new CustomAdaptorForListView(getActivity(),
                 R.layout.background_for_group_content,adaptorlist);
+
         ls.setAdapter(arr);
+
+
 
     }
     public void setListFromTitle(Object o)
-    {
+    {   itemList=new ArrayList<>();
         list=new ArrayList<>();
-      List<Title>   titles=(List)o;
+        titleList=(List)o;
         List<Form> adaptorlist=new ArrayList<>();
-        for(Title title:titles)
+        for(Title title:titleList)
         {
             Form form=new Form();
-            form.setGroup(title.getTitle_name());
+            form.setGroup(title.getTitle_name());//even though i called setGroup but adding titlename
             list.add(title.getUnique_Key());
+            itemList.add(title.getTitle_name());
             adaptorlist.add(form);
 
         }
-        CustomAdaptorForListView  arr=new CustomAdaptorForListView(getActivity(),
+          arr=new CustomAdaptorForListView(getActivity(),
                 R.layout.background_for_group_content,adaptorlist);
         ls.setAdapter(arr);
 
 
     }
 
+    private void repopulateAdaptor(CustomAdaptorForListView customAdaptorForListView,String searchText)
+    {
+      customAdaptorForListView.clear();
+        handleSearching=new HandleSearching();
+
+        for(Form val:handleSearching.search(searchText))
+        {
+            customAdaptorForListView.add(val);
+            Log.d(log,"adding form to adaptor "+val.getGroup());
+        }
+    }
+     private class HandleSearching
+     {
+
+      public List<Form> search(String searchText)
+      {
+          return SearchingUtility.startWithSearch(itemList,searchText);
+      }
+
+      /**
+       * calls the utility class to get the array holding the positions.After the searched items have been populated if a position is
+       * clicked to get the key for this position,use the position clicked number to get the value at the same position in
+       * the array returned by getposition.That value will be the index for the key in the list array.
+       * */
+       List<Integer> getPositions()
+      {
+          return SearchingUtility.getPositionsOfResult();
+      }
+
+
+       String getKey(int index)
+      {
+          startSearch=true;
+
+          return list.get(getPositions().get(index));
+      }
+
+     }
+
+    public interface HandleSearch{
+
+        void close();
+        void searchText(String search);
+    }
 
 
 }

@@ -5,6 +5,8 @@
     <string name="backgroung_for_titlesfragment_textview">backgroundtextviewid</string>
     <string name="new_group_name_created_by_user">Create new group</string>
     <string name="save_button__in_create_group_xml">Save</string>
+
+    <string name="hello_blank_fragment">Hello blank fragment</string>
     <array name="spinner_values">
         <item>Sciences</item>
         <item>Technical</item>
@@ -38,7 +40,6 @@
     <string name="change_Username">Change Username</string>
     <string name="new_email">New Email</string>
     <string name="reset_password">Reset Password</string>
-    return_login_register
     <string name="return_login_register">Return To Login</string>
     <string name="new_password">New Password</string>
     <string name="access_to_change_password">Request Password Change</string>
@@ -60,14 +61,38 @@
     <string name="invalid_password">"The password provided does not match,whats on record,pls provide a correct password,or request to reset password."
 
     </string>
-     <string name="user_does_not_exist">"A user with the provided email,does not exist on record.Create a new account if you do not have one."</string>
-     <string name="email_or_password_error">"The email or password provided is incorrect  "</string>
+    <string name="user_does_not_exist">"A user with the provided email,does not exist on record.Create a new account if you do not have one."</string>
+    <string name="email_or_password_error">"The email or password provided is incorrect  "</string>
 
 
     <string name="password_reset_response">A link to generate new password has been sent to the email provided.</string>
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
+    <string name="zero_count">Zero Count</string>
+    <string name="priority_rate">Priority Rate</string>
+    <string name="difficulty_rate">Difficulty Rate</string>
+    <string name="user_name">Username</string>
+    <string name="do_verify">Profile Status</string>
+    <string name="profile">Profile</string>
+
+    <string-array name="difficulty_rate_value">
+        <item>Set rate to 6hrs</item>
+        <item>Set rate to 9hrs</item>
+        <item>Set rate to 12hrs</item>
+        <item>Set rate to Daily</item>
+    </string-array>
+    <string-array name="zero_choice">
+        <item>Weekly</item>
+        <item>Bi-montly</item>
+        <item>Monthly</item>
+    </string-array>
+    <string-array name="priority_rate">
+        <item>Repeat in Multiples of 5</item>
+        <item>Repeat in Multiples of 10</item>
+        <item>Repeat in Multiples of 20</item>
+    </string-array>
+
 
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>
@@ -132,7 +157,6 @@
     <string name="verify">Verify Account</string>
 
 
-
     <!-- Resource for home page -->
     <string name="answer_hint">Enter answer here</string>
     <string name="start_Text">Click The Button Below To Start</string>
@@ -141,10 +165,9 @@
     <string name="loading_content">Loading Content</string>
 
 
-<!-- title Content -->
+    <!-- title Content -->
 
     <string name="textUpdated">Record Updated</string>
-
 
 
     <!-- -->
@@ -158,10 +181,16 @@
     <string name="low_level">Low</string>
     <string name="med_level">Med</string>
     <string name="high_level">High</string>
+    <string name="back_button">Back</string>
 
 
     <!--title fragment -->
     <string name="search_bar">enter to search</string>
     <string name="search_result">Search not found</string>
+
+
+    <!-- add page -->
+    <string name="answer">Enter Answer Here</string>
+
 
 </resources>

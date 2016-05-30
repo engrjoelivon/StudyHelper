@@ -2,10 +2,33 @@
 
     <!-- These settings headers are only used on tablets. -->
 
+    appsettings
+
     <header
-        android:fragment="aivco.com.studyhelper.SettingsActivity$GeneralPreferenceFragment"
+        android:fragment="aivco.com.studyhelper.SettingsActivity$About"
         android:icon="@drawable/ic_info_black_24dp"
-        android:title="@string/pref_header_general" />
+        android:title="@string/about"
+
+        />
+
+
+
+
+    <header
+        android:fragment="aivco.com.studyhelper.SettingsActivity$Profile"
+        android:icon="@drawable/ic_account_black"
+        android:title="@string/profile"
+
+        />
+
+    <header
+        android:fragment="aivco.com.studyhelper.SettingsActivity$AppSettings"
+        android:icon="@android:drawable/presence_video_away"
+        android:title="@string/app_settings" />
+
+
+
+
 
 
     <header
@@ -16,12 +39,12 @@
 
     <header
         android:fragment="aivco.com.studyhelper.SettingsActivity$ChangePassword"
-        android:icon="@drawable/edit"
+        android:icon="@android:drawable/ic_menu_edit"
         android:title="@string/change_password" />
 
     <header
         android:fragment="aivco.com.studyhelper.SettingsActivity$ChangeUsername"
-        android:icon="@drawable/edit"
+        android:icon="@android:drawable/ic_menu_edit"
         android:title="@string/change_username" />
 
 

@@ -22,12 +22,12 @@ import backend.TitleInfo;
 /**
  * Created by joel on 4/6/16.
  */
-public class List_Utility extends DialogFragment  {
+ public class List_Utility extends DialogFragment  {
     private EditText edittext;
     private Groupname groupname;
-    ListView ls;
-    String this_id;
-    List<String> list;
+    private ListView ls;
+    private String this_id;
+    private List<String> list;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -137,22 +137,22 @@ public class List_Utility extends DialogFragment  {
             list=(List)o;
 
 
-            List<Form> adaptorlist=new ArrayList<>();
+            List<String> adaptorlist=new ArrayList<>();
 
 
             for(String gp:list)
             {
                 Form form=new Form();
-                form.setGroup(gp);
-                adaptorlist.add(form);
+                //form.setGroup(gp);
+                adaptorlist.add(gp);
             }
 
 
 
 
-
-            CustomAdaptorForListView  arr=new CustomAdaptorForListView(getActivity(),R.layout.background_for_group_content,adaptorlist);
-            ls.setAdapter(arr);
+            MyCustomAdaptor myCustomAdaptor=new MyCustomAdaptor(getActivity(),R.layout.custom_layout_for_view,adaptorlist);
+            //CustomAdaptorForListView  arr=new CustomAdaptorForListView(getActivity(),R.layout.background_for_group_content,adaptorlist);
+            ls.setAdapter(myCustomAdaptor);
 
 
         }

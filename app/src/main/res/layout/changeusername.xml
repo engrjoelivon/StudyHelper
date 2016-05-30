@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/white_background"
     >
     <LinearLayout
         android:layout_width="match_parent"
@@ -65,8 +66,6 @@
             style="@style/formcontent.buttons"
             android:text="@string/change_username"
             android:id="@+id/changeusername"
-            android:layout_marginTop="0px"
-            android:layout_marginBottom="10px"
             />
 
     </LinearLayout>

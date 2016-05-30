@@ -28,6 +28,7 @@ public class MainActivity extends TabActivity implements  Login_Dialog_Fragment.
     public static final String MYEMAIL ="useremail" ;
     public static final String MYPASSWORD ="userpassword" ;
     public static final String KEYFORNUMBEROFTIMEVISITED = "MainActivitynumberoftime";
+
     private Login_Dialog_Fragment ldg;
     private User user;
     static SharedPreferences sharedPreferences;
@@ -44,9 +45,13 @@ public class MainActivity extends TabActivity implements  Login_Dialog_Fragment.
     public static final String KEYFORDIFFICULTYHIGH="MainActivity_high";
     public static final String KEYFORDIFFICULTYMED="MainActivity_med";
     public static final String KEYFORDIFFICULTYLOW="MainActivity_low";
+    public static final String KEYFORDIFFICULTYZERO ="MainActivity_zero" ;
     public static Handler handler;
     public ProgressDialog progressDialog;
     public static Activity finishAcitivty;
+    public static final String TITLEKEY="key_for_title";//title to use when calling confirmation dialog
+    public static final String MESSAGEKEY="key_for_message";//key_to_use_to_obtain message from bundle in confirmation dialog
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,16 +76,17 @@ public class MainActivity extends TabActivity implements  Login_Dialog_Fragment.
                 return false;
             }
         });
-        //SharedPreferenceHelper.setData(MainActivity.MYEMAIL, null);//remove this
-       // SharedPreferenceHelper.setData(MainActivity.USERNAME, null);//remove this
-        ////set default values for app
+
+
+        ////set default values for app  //below default values are entered for the app,this values can be set by the user from the app
+        //settings default value is 10.
         if(sharedPreferenceHelper.getInt(KEYFORDIFFICULTYHIGH)== 0)
         {
-
-            sharedPreferenceHelper.setData(KEYFORDIFFICULTYHIGH,12);
-            sharedPreferenceHelper.setData(KEYFORDIFFICULTYMED,24);
-            sharedPreferenceHelper.setData(KEYFORDIFFICULTYLOW,36);
-            sharedPreferenceHelper.setData(KEYFORNUMBEROFTIMEVISITED,10);
+            sharedPreferenceHelper.setData(KEYFORDIFFICULTYZERO,7);//diffulty for zero is set at 7days
+            sharedPreferenceHelper.setData(KEYFORDIFFICULTYHIGH,12);//difficulty for high is set at 12hrs
+            sharedPreferenceHelper.setData(KEYFORDIFFICULTYMED,24);//24hrs
+            sharedPreferenceHelper.setData(KEYFORDIFFICULTYLOW,36); //first time application runs default value for questions with difficulty low visited is set at 36
+            sharedPreferenceHelper.setData(KEYFORNUMBEROFTIMEVISITED,10);  //first time application runs default value for number of time visited is set at 10
 
         }
 
@@ -102,22 +108,22 @@ public class MainActivity extends TabActivity implements  Login_Dialog_Fragment.
 
         TabSpec tabSpecHome=tabHost.newTabSpec("Home")
                 .setIndicator("", resource.getDrawable(R.drawable.home_config))
-                .setContent(new Intent(this, HomeTab.class));
+                .setContent(new Intent(this, HomeTab.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
 
 
         TabSpec tabSpecAdd=tabHost.newTabSpec("Add")
                 .setIndicator("",resource.getDrawable(R.drawable.add_config))
-                .setContent(new Intent(this, AddTab.class));
+                .setContent(new Intent(this, AddTab.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
 
 
         TabSpec tabSpecContents=tabHost.newTabSpec("Content")
                 .setIndicator("",resource.getDrawable(R.drawable.contents_config))
-                .setContent(new Intent(this, ContentTab.class));
+                .setContent(new Intent(this, ContentTab.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
 
 
         TabSpec tabSpecSettings=tabHost.newTabSpec("Setting")
                 .setIndicator("",resource.getDrawable(R.drawable.settings_config))
-                .setContent(new Intent(this, SettingsActivity.class));
+                .setContent(new Intent(this, SettingsActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
 
 
 
