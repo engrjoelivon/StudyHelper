@@ -5,15 +5,16 @@
         <!-- Customize your theme here. -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:textColor">@color/colorPrimaryDark</item>
-        <item name="colorPrimary">@android:color/darker_gray</item>
+        <item name="android:textColor">@color/textcolor</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
         <item name="android:textSize">@dimen/regularText</item>
-        <item name="colorPrimaryDark">@android:color/darker_gray</item>
-        <item name="colorAccent">@color/backgroundcolor</item>
-        <item name="android:background">@android:color/darker_gray</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="android:colorBackground">@color/color_background</item>
         <item name="android:radioButtonStyle">@style/forradiobutton</item>
         <item name="android:actionBarStyle">@style/actionbarstyle</item>
         <item name="android:tabWidgetStyle">@style/fortabwidjet</item>
+
     </style>
 
 
@@ -94,10 +95,20 @@
     <style name="formcontent">
         <item name="android:layout_height">match_parent</item>
         <item name="android:layout_width">match_parent</item>
-        <item name="android:colorBackground">@android:color/transparent</item>
+        <item name="android:background">@android:color/transparent</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="android:layout_weight">0.5</item>
         <item name="android:gravity">bottom</item>
+
+    </style>
+
+
+    <style name="forspinner" parent="Base.Widget.AppCompat.Spinner">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_weight">0.5</item>
+
 
     </style>
 
@@ -131,7 +142,7 @@
 
 
     <style name="forradiobutton" parent="Widget.AppCompat.CompoundButton.RadioButton">
-        <item name="android:background">@android:color/darker_gray</item>
+        <item name="android:background">@android:color/transparent</item>
         <item name="android:textColor">@android:color/white</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_width">wrap_content</item>
@@ -150,6 +161,14 @@
     </style>
 
 
+    <style name="wholecontent">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:background">@android:color/transparent</item>
+
+
+    </style>
 
 
 

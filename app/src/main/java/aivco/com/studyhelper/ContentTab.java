@@ -1,5 +1,6 @@
 package aivco.com.studyhelper;
 
+import android.app.FragmentManager;
 import android.app.ListFragment;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
@@ -11,6 +12,8 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -40,6 +43,7 @@ import backend.TitleInfo;
 * */
 
 public class ContentTab extends AppCompatActivity implements AdapterView.OnItemClickListener {
+    private static final String HOMEFRAGMENT = "homefragment";
     TitleInfo titleInfo;
     ListView listView;
     List<String> list;
@@ -173,5 +177,33 @@ public class ContentTab extends AppCompatActivity implements AdapterView.OnItemC
     public static void logout(){
 if(finishAcitivty != null)
         finishAcitivty.finish();
+    }
+
+
+    public void startTitleFragment(){
+
+
+     startFragment(new TitleFragmentFragment(),HOMEFRAGMENT);
+
+    }
+
+    public void startContentFragment()
+    {
+        startFragment(new TitleContentActivityFragment(),HOMEFRAGMENT);
+    }
+    public void startSearchFragment()
+    {
+        startFragment(new SearchFragment(),HOMEFRAGMENT);
+    }
+
+    private void startFragment(Fragment fragment,String backstack)
+    {
+        android.support.v4.app.FragmentManager fm=getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction ft=fm.beginTransaction();
+        ft.addToBackStack(backstack);
+        ft.replace(android.R.id.content,fragment);
+        ft.commit();
+
+
     }
 }

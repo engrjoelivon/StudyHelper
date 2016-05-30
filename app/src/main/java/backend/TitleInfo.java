@@ -11,6 +11,7 @@ import android.util.Log;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -60,7 +61,6 @@ public  class TitleInfo extends Title  {
     String db_name="db_4_titles";
     public String username="";
     private int version=1;
-    private int otherVersion=1;
     public static final String id_col="_id";
     public static final String title_name_col="title_entered_by_user";
     public static final String groupname_col="groupname_title_is_located";
@@ -87,10 +87,10 @@ public  class TitleInfo extends Title  {
             +given_col+" STRING,"
             +uniquekey_col+" STRING,"
             +expiry_time_col+" STRING,"
-            +email_col+" STRING,"              //trying to use for email column
+            //+email_col+" STRING,"              //trying to use for email column
             +date_col+" STRING,"
             +username_col+" STRING,"
-            //+email_col+" STRING,"        //just inserted
+            +email_col+" STRING,"        //just inserted
             +number_visited_col+" INTEGER"
 
             +")" ;
@@ -101,7 +101,6 @@ public  class TitleInfo extends Title  {
     private HandleFirebase handleFirebase;
     private String recordToDeleteFromServer="deleteRecord/";
     private String urlForRecordToUpDate="updaterecords/";
-
 
     public TitleInfo(Context context)
     {
@@ -348,6 +347,7 @@ public  class TitleInfo extends Title  {
     //////method called to return all the given records back to false///////////
     public void returnToDefault()
     {
+        Log.d(tag,"returning all values to default");
         Cursor cursor=titleinfoDb.extractAllid();
         while(cursor.moveToNext())
         {
@@ -366,19 +366,87 @@ public  class TitleInfo extends Title  {
     //to zero.This will be based on the expiry date time object,and also by the number of times this row has been given////////
     /////////////////update the titles that have been showed by the home page////1 reps true,meaning the row with this id has been shown///////////0 rep false/////
 
-    public void  updateGiven(String unique_key,String expirytime,int numoftimegiven){
+    public void  updateGiven(String uniqueKey,String expirytime,int numoftimegiven,int diffCol){
 
 
-         titleinfoDb.updateGiven(unique_key, "1", expirytime, numoftimegiven);
-        myactionsDb.updatedKeys(unique_key);
-        myactionsDb.removeAddedKey(unique_key);
-        new ServerWithIon(context).postUpdatedWhenGivenRecord(unique_key, numoftimegiven + "", expirytime, "updaterecordwhengiven/");
+        titleinfoDb.updateGiven(uniqueKey, "1", expirytime, numoftimegiven);
 
+        updateActions(uniqueKey);
+        new ServerWithIon(context).postUpdatedWhenGivenRecord(uniqueKey, numoftimegiven + "", expirytime, "updaterecordwhengiven/");
+        checkDiff(numoftimegiven,diffCol,uniqueKey);
         titleinfoDb.close();
     }
     public void updateActions(String unique_key){
         myactionsDb.updatedKeys(unique_key);
         myactionsDb.removeAddedKey(unique_key);
+
+    }
+
+    /**@param nvisited  number of time visited
+     * @param diffCol difficulty level
+     * @param uniquekey the key for the index to act on
+     * checks if the difficlulty value should be downgraded based on the value of numberoftime given.If a title has been given more than
+     * the number set by user,downgrade difficulty.
+     * */
+    public void checkDiff(int nvisited,int diffCol,String uniquekey){
+        //Log.d(tag,"checkDiff");
+        ///////////handle nvc///////////////
+        //int nvisited=c.getInt(c.getColumnIndex(number_visited_col));
+
+        switch (diffCol)
+        {
+            case 1:{
+                //System.out.println("............case 2...........number of time visited is................."+nvisited);
+                //if true will be degraded to 0 and will not be shown to the user again until after a succession of 7 days
+                if (calculateNumberVisited(nvisited))
+                {
+                    //Log.d(tag,"case 1 " + uniquekey);
+                    titleinfoDb.update(number_visited_col,"0",uniquekey);
+                    titleinfoDb.update(diff_col, "0", uniquekey);
+
+                    //setting expiry date to one week from the day diff_col got changed to 0.on the 7th day the title will be changed to 1 with a
+                    //number set to 9.this means it will be shown just once.
+                    LocalDateTime localDateTime=LocalDateTime.now(DateTimeZone.UTC);
+                    LocalDateTime futureDate=localDateTime.plusDays(7);//for testing
+                    titleinfoDb.update(expiry_time_col,futureDate.toString(),uniquekey);
+                    Log.d(tag,"title has been set at 0 " +futureDate);
+                    updateActions(uniquekey);
+                    new ServerWithIon(context).postUpdatedWhenGivenRecord(uniquekey, nvisited + "", futureDate.toString(), "updaterecordwhengiven/");
+
+
+                }
+                break;
+            }
+
+            case 2:{
+                //if true will be degraded to 1
+                if (calculateNumberVisited(nvisited))
+                {
+                    //Log.d(tag,"case 2");
+                    titleinfoDb.update(diff_col, "1", uniquekey);
+                    titleinfoDb.update(number_visited_col,"0",uniquekey);
+                    updateActions(uniquekey);
+
+                }
+                break;
+            }
+            case 3: {
+                //if true will be degraded to 2
+
+                if (calculateNumberVisited(nvisited))
+                {
+                   // Log.d(tag,"case 3");
+                    titleinfoDb.update(diff_col, "2", uniquekey);
+                    titleinfoDb.update(number_visited_col,"0",uniquekey);
+                    updateActions(uniquekey);
+
+                }
+
+                break;
+            }
+
+
+        }
 
     }
 
@@ -388,74 +456,42 @@ public  class TitleInfo extends Title  {
 
     public void calculateIfExpired()
     {
+       // Log.d(tag,("............calculate if expired................"));
         //System.out.println(".......................calculating if expiry.................");
 
         Cursor c=titleinfoDb.selectforExpiryNumberOfTimeV();
+
+
         while(c .moveToNext())
         {
+
+           // Log.d(tag,("............cursor returned values................"));
+
             String uniquekey=c.getString(c.getColumnIndex(uniquekey_col));
             String expiry=c.getString(c.getColumnIndex(expiry_time_col));
-            System.out.println("............there are values to calculate................"+expiry);
+            //Log.d(tag,("............there are values to calculate................"+expiry));
 
             if(!(expiry == null) && (!expiry.equals("0")) && ifExpired(expiry))
             {
-                System.out.println("............i have expired................"+expiry);
+                //Log.d(tag,("............i have expired................"+expiry));
+               if((c.getInt(c.getColumnIndex(diff_col)) != 0))
+               {
+                   titleinfoDb.upDateGivenForExpiry(c.getString(c.getColumnIndex(uniquekey_col)),GIVE);
+                   updateActions(uniquekey);
 
-                titleinfoDb.upDateGivenForExpiry(c.getString(c.getColumnIndex(uniquekey_col)),GIVE);
-                updateActions(uniquekey);
+               }
+                else
+               {
+                   titleinfoDb.update(diff_col, "1", uniquekey);
+                   titleinfoDb.update(number_visited_col,"9",uniquekey);
 
+               }
 
-            }
-            ///////////handle nvc///////////////
-            int nvisited=c.getInt(c.getColumnIndex(number_visited_col));
-
-            switch (c.getInt(c.getColumnIndex(diff_col)))
-            {
-                case 1:{
-                    //System.out.println("............case 2...........number of time visited is................."+nvisited);
-                    if (calculateNumberVisited(nvisited))
-                    {
-                        titleinfoDb.update(diff_col, "0", c.getString(c.getColumnIndex(uniquekey_col)));
-                        titleinfoDb.update(number_visited_col,"0",c.getString(c.getColumnIndex(uniquekey_col)));
-                        updateActions(uniquekey);
-
-                    }
-                    break;
-                }
-
-                case 2:{
-                    //System.out.println("............case 2...........number of time visited is................."+nvisited);
-                    if (calculateNumberVisited(nvisited))
-                    {
-                        titleinfoDb.update(diff_col, "1", c.getString(c.getColumnIndex(uniquekey_col)));
-                        titleinfoDb.update(number_visited_col,"0",c.getString(c.getColumnIndex(uniquekey_col)));
-                        updateActions(uniquekey);
-
-                    }
-                    break;
-                }
-                case 3: {
-                    //System.out.println("............case 3...........number of time visited is................."+nvisited);
-                    if (calculateNumberVisited(nvisited))
-                    {
-
-                        titleinfoDb.update(diff_col, "2", c.getString(c.getColumnIndex(uniquekey_col)));
-                        titleinfoDb.update(number_visited_col,"0",c.getString(c.getColumnIndex(uniquekey_col)));
-                        updateActions(uniquekey);
-
-                    }
-
-                    break;
-                }
 
 
             }
 
-
-
-
-
-
+            checkDiff(c.getInt(c.getColumnIndex(number_visited_col)),c.getInt(c.getColumnIndex(diff_col)),uniquekey);
 
         }
 
@@ -465,21 +501,31 @@ public  class TitleInfo extends Title  {
 
     }
 
+    /**
+     * @param expiry  accepts the expiry date set after the the title was shown,compares this value to see if it is behind todays date,if yes
+     *   returns true
+     * */
     public boolean ifExpired(String expiry){
+        Log.d(tag,("............ifExpired method..............."+expiry));
         //System.out.println(".......................calculate expiry method.................");
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("YYYY-MM-DD-HH:mm:ss");
         LocalDateTime expirydate=new LocalDateTime(expiry);
 
-        LocalDateTime todaydatetime=new LocalDateTime();
+        LocalDateTime todaydatetime=new LocalDateTime(DateTimeZone.UTC);
         //if todays date is after expiry date,return true
-
         return todaydatetime.isAfter(expirydate);
     }
 
-public boolean calculateNumberVisited(int nOTV){
+    /**
+     * @param nOTV  represents the number of time the question have been shown to the user.If it is greater that the value set for
+     * this question will be degraded by the calling method
+     * */
+     public boolean calculateNumberVisited(int nOTV)
+     {
+         Log.d(tag,"number of time visited" +nOTV);
+    return nOTV >= SharedPreferenceHelper.getInt(MainActivity.KEYFORNUMBEROFTIMEVISITED);
+    }
 
-    return nOTV > SharedPreferenceHelper.getInt(MainActivity.KEYFORNUMBEROFTIMEVISITED);
-}
+
 
 
 
@@ -662,7 +708,8 @@ public boolean calculateNumberVisited(int nOTV){
             while (c.moveToNext())
             {
                 if(Integer.parseInt(c.getString(c.getColumnIndex(diff_col)))!= 0) //perform check so as to return only priority levels between 1 and 3
-                listQA.add(generateTitle4QA(c));
+                {
+                    listQA.add(generateTitle4QA(c));}
             }
 
 
@@ -681,6 +728,7 @@ public boolean calculateNumberVisited(int nOTV){
 
     /**method to generate Title object from a cursor*/
     public Title generateTitle4QA(Cursor c){
+        Log.d(tag,"adding unique key"+c.getString(c.getColumnIndex(uniquekey_col)));
         Title title4QA=new Title();
 
         title4QA.setUnique_Key(c.getString(c.getColumnIndex(uniquekey_col)));
@@ -1015,7 +1063,7 @@ public boolean calculateNumberVisited(int nOTV){
 
             System.out.println("............selectforExpiryNumberOfTimeV...... ");
             SQLiteDatabase readsql= getReadableDatabase();
-            return readsql.query(table_name, new String[]{uniquekey_col, diff_col, expiry_time_col,number_visited_col}
+            return readsql.query(table_name, new String[]{title_name_col,uniquekey_col, diff_col, expiry_time_col,number_visited_col}
                     , email_col + "=? ", new String[]{SharedPreferenceHelper.getString(MainActivity.MYEMAIL)}, null, null, null);
         }
 
@@ -1130,7 +1178,6 @@ public boolean calculateNumberVisited(int nOTV){
 
 
             //long ans=  writeSql.update(table_name, contentValues, uniquekey_col + " =?" + " AND " + username_col + "=?", new String[]{uniqueKey, SharedPreferenceHelper.getString(MainActivity.USERNAME_KEY)});
-           System.out.println("Row Updated" + ans);
             writeSql.close();
 
         }
@@ -1160,14 +1207,14 @@ public boolean calculateNumberVisited(int nOTV){
         */
         public long update(String colname,String value,String key)
         {
+            Log.d(tag,"update method");
             SQLiteDatabase writeSql=getWritableDatabase();
 
             ContentValues contentValues=new ContentValues();
-
             contentValues.put(colname, value);
             int ans=  writeSql.update(table_name, contentValues, uniquekey_col + " like '%" + TitleInfo.realKey(key) + "'", null);
             writeSql.close();
-
+            Log.d(tag,"ans is "+ans);
             return ans;
         }
 
@@ -1218,7 +1265,7 @@ public boolean calculateNumberVisited(int nOTV){
             ContentValues contentValues=new ContentValues();
 
             contentValues.put(given_col, GIVE);
-            contentValues.put(expiry_time_col, "0");
+            //contentValues.put(expiry_time_col, "0");     //decided to not return expiry to default value,so that when the application restarts
             long ans=  writeSql.update(table_name, contentValues, uniquekey_col +" = ?", new String[]{uniqueid});
 
 
@@ -1275,14 +1322,16 @@ public boolean calculateNumberVisited(int nOTV){
         }
         public void removeAddedKey(String key)
         {
+            Log.d(tag,"removing key from added keys");
             SQLiteDatabase readsql= getReadableDatabase();
-            int a=  readsql.delete(actionTableName, insertedKeyCol + " like '%" + TitleInfo.realKey(key) + "'", null);
+            readsql.delete(actionTableName, insertedKeyCol + " like '%" + TitleInfo.realKey(key) + "'", null);
 
             readsql.close();
         }
 //////ServerKeys for updated records///////////////
         public synchronized void updatedKeys(String key)
         {
+            Log.d(tag,"updating keys");
             System.out.println("............real key in updatedKeys is...... " + TitleInfo.realKey(key));
             SQLiteDatabase readsql= getReadableDatabase();
             String query = " select "+ updatedKeyCol +" from "+actionTableName + " where "+updatedKeyCol+" like '%"+TitleInfo.realKey(key)+"'";
@@ -1306,7 +1355,7 @@ public boolean calculateNumberVisited(int nOTV){
         //ServerKeys for updated records///////////////
         public void removeupdatedKeys(String key)
         {
-
+            Log.d(tag,"removing key from added keys");
 
 
             /*String query = " delete  from "+actionTableName + " where "+updatedKeyCol+" like '%"+realKey+"'"; */

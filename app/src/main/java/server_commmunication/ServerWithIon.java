@@ -39,6 +39,7 @@ public class ServerWithIon extends HTTPServer {
     private static final String EXTRA_URL = "backend.extra.UNIQUE_KEY";
     public Context context;
     private String recordToDeleteFromServer="deleteRecord/";
+    private final String  UPDATERECORDSWHENGIVEN="updaterecordwhengiven/";
     //private static String SERVERURL="http://192.168.100.13:8000/";   http://engrjoelivon.pythonanywhere.com/
     private static String SERVERURL="http://engrjoelivon.pythonanywhere.com/";
     private String checkUpdates="checkinserts/";//path to check update on system and on server
@@ -261,10 +262,6 @@ public class ServerWithIon extends HTTPServer {
 
     //method called when a record is given at the home page
     public void postUpdatedWhenGivenRecord(String key,String nOTAccesed,String Expire,String path)  {
-        System.out.println("...................postUpdatedRecordwhengiven.......................");
-
-
-
         ////// adds an image below as ascii string encoded using base BASE64./////
         JsonObject jsonObject=new JsonObject();
         ArrayList<String> thisArray=new ArrayList<>();
@@ -278,7 +275,7 @@ public class ServerWithIon extends HTTPServer {
 
 
         Ion.with(context)
-                .load(generateUrl(path))
+                .load(generateUrl(UPDATERECORDSWHENGIVEN))
                 .setJsonObjectBody(jsonObject)
                 .asJsonObject()
 

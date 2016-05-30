@@ -64,7 +64,6 @@ public class HomeTab extends AppCompatActivity implements View.OnClickListener {
     public List<Title>  list4QA;
     private ImageButton backButton,imageSwitcher,icMenuEdit,updateAnswer;
     private int count=0;//variable that handles values inserted into handleBack array
-    private static String TAG="aivco.com.studyhelper.HomeTab3";
     private boolean firstime=false;
     private static String uniqueid;
     private int qaListCount;
@@ -131,7 +130,12 @@ public class HomeTab extends AppCompatActivity implements View.OnClickListener {
 
     }
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(new View(this).getWindowToken(), 0);
+    }
 
     public void disableButtons()
     {
@@ -173,6 +177,8 @@ public class HomeTab extends AppCompatActivity implements View.OnClickListener {
                     new GetQA().execute();
 
                     displayText(getResources().getString(R.string.new_application));
+                    textSwitcher.setText("");
+
 
                 }
                 else
@@ -320,8 +326,11 @@ public class HomeTab extends AppCompatActivity implements View.OnClickListener {
     /////except after the whole data has completed
 
     public void updateGiven(){
+        Log.d(tag, "updateGiven()");
         Title qaTitle=list4QA.get(qaListCount);
-        titleInfo.updateGiven(qaTitle.getUnique_Key(),futuredateTime(qaTitle.getDifficulty_level()),qaTitle.getNumber_of_times_visited()+1);
+        int nGiven=qaTitle.getNumber_of_times_visited()+1;
+       // titleInfo.checkDiff(nGiven,qaTitle.getDifficulty_level(),qaTitle.getUnique_Key());
+        titleInfo.updateGiven(qaTitle.getUnique_Key(),futuredateTime(qaTitle.getDifficulty_level()),nGiven,qaTitle.getDifficulty_level());
     }
 
     public  String futuredateTime(int  diff)
@@ -351,6 +360,13 @@ public class HomeTab extends AppCompatActivity implements View.OnClickListener {
 
             ldt=new LocalDateTime(DateTimeZone.UTC);
             return ldt.plusHours(SharedPreferenceHelper.getInt(MainActivity.KEYFORDIFFICULTYLOW)).toString();}
+
+        else if(diff==0)
+        {
+            System.out.println("..................(diff)==1......................");
+
+            ldt=new LocalDateTime(DateTimeZone.UTC);
+            return ldt.plusDays(SharedPreferenceHelper.getInt(MainActivity.KEYFORDIFFICULTYZERO)).toString();}
 
 
         return null;

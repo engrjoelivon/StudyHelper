@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="10dp"
+    android:layout_marginTop="0dp"
+    android:paddingTop="20dp"
+
+    >
+
+
+
+    <TextView
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/user_name"
+        android:layout_alignParentTop="true"
+        android:textStyle="bold|italic"
+        android:textColor="@color/heading"
+        android:id="@+id/name"
+
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/name"
+        android:layout_alignLeft="@+id/name"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
+        android:maxEms="20"
+        android:id="@+id/name_value"
+        android:background="@null"
+
+
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/prompt_email"
+        android:textStyle="bold|italic"
+        android:id="@+id/dis_name"
+        android:textColor="@color/heading"
+        android:layout_below="@+id/name_value"
+
+
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/dis_name"
+        android:layout_alignLeft="@+id/name"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
+        android:id="@+id/dis_value"
+        android:background="@null"
+
+        />
+
+
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/verify"
+        android:textStyle="bold|italic"
+        android:id="@+id/veri_status"
+        android:textColor="@color/heading"
+        android:layout_below="@+id/dis_value"
+
+
+        />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/veri_status_value"
+        android:layout_below="@+id/veri_status"
+        />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/do_verify"
+        android:id="@+id/do_verify"
+        android:layout_below="@+id/veri_status"
+        android:layout_alignParentEnd="true"
+        android:visibility="gone"
+        android:background="@color/onfocus"
+        />
+
+
+    <ImageButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@null"
+        android:layout_gravity="bottom"
+        android:id="@+id/backbutton"
+        android:src="@drawable/backcolored"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentStart="true"
+        />
+
+
+
+</RelativeLayout>
+
+
+

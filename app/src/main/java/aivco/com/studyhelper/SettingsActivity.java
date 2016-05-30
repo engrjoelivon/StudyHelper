@@ -19,18 +19,22 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.support.annotation.Nullable;
 import android.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -38,11 +42,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +73,8 @@ import server_commmunication.ServerWithIon;
  * href="http://developer.android.com/guide/topics/ui/settings.html">Settings
  * API Guide</a> for more information on developing a Settings UI.
  */
-public class SettingsActivity extends AppCompatPreferenceActivity implements AdapterView.OnItemSelectedListener, HandleFirebaseInterface, Logout, LogingInRegisteringResult {
+public class SettingsActivity extends AppCompatPreferenceActivity implements AdapterView.OnItemSelectedListener, HandleFirebaseInterface, Logout,
+        LogingInRegisteringResult,ConfirmationDialog.OnFragmentListener {
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -80,6 +90,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Ada
     static String myNewPassword,myNewEmail;//they represent values for email and password,when its changed by uses
     static HandleProgressDialog hpd;
     static ProgressDialog pg;
+    private static final String Tag="settingsActivity";
 
 
     public SettingsActivity() {
@@ -158,6 +169,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Ada
     private static boolean isXLargeTablet(Context context) {
         return (context.getResources().getConfiguration().screenLayout
                 & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
+
     }
 
     /**
@@ -259,12 +271,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Ada
      */
     protected boolean isValidFragment(String fragmentName) {
         return PreferenceFragment.class.getName().equals(fragmentName)
-                || GeneralPreferenceFragment.class.getName().equals(fragmentName)
+                || About.class.getName().equals(fragmentName)
+                || Profile.class.getName().equals(fragmentName)
                 || LogoutPreferenceFragment.class.getName().equals(fragmentName)
                 || NotificationPreferenceFragment.class.getName().equals(fragmentName)
                        || ChangePassword.class.getName().equals(fragmentName)
         || ChangeUsername.class.getName().equals(fragmentName)
                 || Comment.class.getName().equals(fragmentName)
+                || AppSettings.class.getName().equals(fragmentName)
 
 
                 ;
@@ -424,6 +438,16 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Ada
 
     }
 
+    @Override
+    public void onCancel() {
+        Log.d(Tag,"onCancel");
+    }
+
+    @Override
+    public void onPerform() {
+        logOut();
+    }
+
 
     /**
      * This fragment shows general preferences only. It is used when the
@@ -473,8 +497,26 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Ada
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                      switch(position){
-                         case 0:{break;}
-                         case 1:{break;}
+                         case 0:
+                         {
+
+                             FragmentManager fm=getFragmentManager();
+                            android.app.FragmentTransaction ft=fm.beginTransaction();
+                             ft.addToBackStack("");
+                             ft.replace(android.R.id.content,new About());
+                             ft.commit();
+
+                             break;
+                         }
+                         case 1:{
+                             FragmentManager fm=getFragmentManager();
+                             android.app.FragmentTransaction ft=fm.beginTransaction();
+                             ft.addToBackStack("");
+                             ft.replace(android.R.id.content,new AppSettings());
+                             ft.commit();
+
+
+                             break;}
                          case 2:{ new ServerWithIon(settingsActivity).validate();        break;}
                      }}
             });
@@ -798,7 +840,356 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Ada
 
 
     }
+     public static class About extends android.app.Fragment{
 
+         @Nullable
+         @Override
+         public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+             View view=inflater.inflate(R.layout.fragment_about,container,false);
+             return view;
+         }
+
+         @Override
+         public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+
+             super.onActivityCreated(savedInstanceState);
+            ImageButton imageButton=(ImageButton) getView().findViewById(R.id.backbutton);
+             imageButton.setOnClickListener(new View.OnClickListener() {
+                 @Override
+                 public void onClick(View v) {
+                     getActivity().finish();
+                 }
+             });
+         }
+     }
+    public static class AppSettings extends android.app.Fragment implements AdapterView.OnItemSelectedListener{
+        String [] diff_rate,zeroRate,priorityRate;
+        SharedPreferenceHelper sharedPreferenceHelper=new SharedPreferenceHelper(settingsActivity);
+
+
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            Log.d(Tag,"onCreateView");
+            View view=inflater.inflate(R.layout.app_settings_fragment,container,false);
+            return view;
+        }
+
+        @Override
+        public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+             diff_rate=getResources().getStringArray(R.array.difficulty_rate_value);
+             zeroRate=getResources().getStringArray(R.array.zero_choice);
+             priorityRate=getResources().getStringArray(R.array.priority_rate);
+            Spinner difficulty_rate_value=(Spinner)getView().findViewById(R.id.difficulty_rate_value);
+            Spinner spinner4priority=(Spinner)getView().findViewById(R.id.priority_value);
+            Spinner spinner4zero=(Spinner)getView().findViewById(R.id.zero_diff_value);
+
+
+            MyCustomAdaptor customAdaptorForListView=new MyCustomAdaptor(settingsActivity,R.layout.custom_layout_for_view, Arrays.asList(diff_rate));
+
+            difficulty_rate_value.setAdapter(customAdaptorForListView);
+            setDefaultForDifficultyRate(difficulty_rate_value);
+            difficulty_rate_value.setOnItemSelectedListener(this);
+
+
+            spinner4priority.setAdapter(new MyCustomAdaptor(settingsActivity,R.layout.custom_layout_for_view, Arrays.asList(priorityRate)));
+            setDefault4priority(spinner4priority);
+            spinner4priority.setOnItemSelectedListener(this);
+
+
+            spinner4zero.setAdapter(new MyCustomAdaptor(settingsActivity,R.layout.custom_layout_for_view, Arrays.asList(zeroRate)));
+            setDefault4zero(spinner4zero);
+            spinner4zero.setOnItemSelectedListener(this);
+
+
+            ImageButton backbutton=(ImageButton)getView().findViewById(R.id.backbutton);
+            backbutton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().finish();
+                }
+            });
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            Log.d(Tag,"back from confirmation");
+        }
+
+        public void setDefaultForDifficultyRate(Spinner spinner)
+        {
+            int diffval=SharedPreferenceHelper.getInt(MainActivity.KEYFORDIFFICULTYHIGH);
+            Log.d(Tag,diffval+" id the vakue");
+           switch(diffval)
+           {
+               case 6:
+               {
+                   spinner.setSelection(0);
+                   break;
+               }
+               case 9:
+               {
+                   spinner.setSelection(1);
+                   break;
+               }
+               case 12:
+               {
+                   Log.d(Tag,diffval+" setting selection to ");
+                   spinner.setSelection(2);
+
+                   break;
+               }
+               case 24:
+               {
+                   spinner.setSelection(3);
+                   break;
+               }
+
+
+           }
+
+        }
+
+        public void setDefault4priority(Spinner spinner)
+        {
+            int prioval=SharedPreferenceHelper.getInt(MainActivity.KEYFORNUMBEROFTIMEVISITED);
+            Log.d(Tag,prioval+" id the vakue");
+            switch(prioval)
+            {
+                case 5:
+                {
+                    spinner.setSelection(0);
+                    break;
+                }
+                case 10:
+                {
+                    spinner.setSelection(1);
+                    break;
+                }
+                case 20:
+                {
+
+                    spinner.setSelection(2);
+
+                    break;
+                }
+
+
+
+            }
+
+        }
+
+        public void setDefault4zero(Spinner spinner)
+        {
+            int diffval=SharedPreferenceHelper.getInt(MainActivity.KEYFORDIFFICULTYZERO);
+
+            switch(diffval)
+            {
+                case 7:
+                {
+                    spinner.setSelection(0);
+                    break;
+                }
+                case 14:
+                {
+                    spinner.setSelection(1);
+                    break;
+                }
+                case 30:
+                {
+                    spinner.setSelection(2);
+
+                    break;
+                }
+
+
+            }
+
+        }
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+        {
+            Log.d(Tag,"onItemSelected");
+          switch(parent.getId())
+          {
+              case R.id.difficulty_rate_value:
+              {
+                  setDiffRate(position);
+                  Log.d(Tag,"difficulty_rate_value");
+
+                  break;}
+              case R.id.priority_value:
+              {
+                  setPriorityRate(position);
+                  Log.d(Tag,"priority_value");
+                  break;}
+              case R.id.zero_diff_value:
+              {
+                  setZeroRate(position);
+                  Log.d(Tag,"zero_diff_value");
+
+
+                  break;}
+
+
+          }
+        }
+
+
+
+        @Override
+        public void onNothingSelected(AdapterView<?> parent)
+        {
+            Log.d(Tag,"onNothingSelected");
+        }
+
+        public  void showConfirmation(String title,String message){
+
+            ConfirmationDialog.createConfirmationDialog(title,message,getFragmentManager());
+
+        }
+
+        public void setDiffRate(int value)
+        {
+            switch(value)
+            {
+                case 0:
+                {
+                    calculateDiff(6);
+                    break;
+                }
+                case 1:
+                {
+                    calculateDiff(9);
+                    break;
+                }
+                case 2:
+                {
+                    Log.d(Tag,"weekly rate is at 12");
+                    calculateDiff(12);
+                    break;
+                }
+                case 3:
+                {
+                    calculateDiff(24);
+                    break;
+                }
+            }
+        }
+
+        private void calculateDiff(int val)
+        {
+            Log.d(Tag,"calculateDiff weekly rate is at 12 "+val);
+            sharedPreferenceHelper.setData(MainActivity.KEYFORDIFFICULTYHIGH,val);
+            sharedPreferenceHelper.setData(MainActivity.KEYFORDIFFICULTYMED,val*2);
+            sharedPreferenceHelper.setData(MainActivity.KEYFORDIFFICULTYLOW,val*3);
+        }
+        public void setPriorityRate(int value)
+        {
+            switch(value)
+            {
+                case 0:
+                {Log.d(Tag,"PriorityRate rate is at 0");
+                    sharedPreferenceHelper.setData(MainActivity.KEYFORNUMBEROFTIMEVISITED,5);
+                    break;
+                }
+                case 1:
+                {
+                    Log.d(Tag,"PriorityRate rate is at 10");
+                    sharedPreferenceHelper.setData(MainActivity.KEYFORNUMBEROFTIMEVISITED,10);
+                    break;
+                }
+                case 2:
+                {   Log.d(Tag,"PriorityRate rate is at 20");
+                    sharedPreferenceHelper.setData(MainActivity.KEYFORNUMBEROFTIMEVISITED,20);
+                    break;
+                }
+
+            }
+
+        }
+        public void setZeroRate(int value)
+        {
+            switch(value)
+            {
+                case 0:
+                {
+                    Log.d(Tag,"PriorityRate rate is at 7");
+                    sharedPreferenceHelper.setData(MainActivity.KEYFORDIFFICULTYZERO,7);//diffulty for zero is set at 7days
+                    break;
+                }
+                case 1:
+                {
+                    sharedPreferenceHelper.setData(MainActivity.KEYFORDIFFICULTYZERO,14);//diffulty for zero is set at 14days
+                    break;
+                }
+                case 2:
+                {
+                    sharedPreferenceHelper.setData(MainActivity.KEYFORDIFFICULTYZERO,30);//diffulty for zero is set at 30days
+                    break;
+                }
+
+            }
+
+        }
+
+
+
+    }
+
+
+
+    public static class Profile extends android.app.Fragment{
+
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+            View view=inflater.inflate(R.layout.fragment_profile,container,false);
+
+            return view;
+        }
+
+
+
+        @Override
+        public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+            ImageButton imageButton=(ImageButton) getView().findViewById(R.id.backbutton);
+            imageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().finish();
+                }
+            });
+            TextView email=(TextView) getView().findViewById(R.id.name_value);
+            email.setText(SharedPreferenceHelper.getString(MainActivity.MYEMAIL));
+
+            TextView username=(TextView) getView().findViewById(R.id.dis_value);
+            username.setText(SharedPreferenceHelper.getString(MainActivity.MYEMAIL));
+
+            TextView verify=(TextView) getView().findViewById(R.id.veri_status_value);
+            Button verifyButton=(Button) getView().findViewById(R.id.do_verify);
+
+            if(!new SharedPreferenceHelper(settingsActivity).getBool(SharedPreferenceHelper.getString(MainActivity.MYEMAIL)))
+            {
+
+                verify.setText("unverified");
+                verifyButton.setVisibility(View.VISIBLE);
+                verifyButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        new ServerWithIon(settingsActivity).validate();
+                    }
+                });
+            }
+            else{
+            verify.setText("verified");
+            verifyButton.setVisibility(View.INVISIBLE);}
+            super.onActivityCreated(savedInstanceState);
+        }
+    }
 
 
     ///handles interaction between Comment class and the postComment method of the serverwithion class/////
@@ -820,5 +1211,13 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Ada
 
 
     }
+
+
+
+
+
+
+
+
 
 }

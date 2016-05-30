@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <!--<color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>-->
+    <color name="colorPrimary">	#228B22 </color>
+    <color name="colorPrimaryDark">#006400</color>
+
     <color name="colorAccent">#FF4081</color>
     <color name="onfocus">#99cc00</color>
     <color name="buttonclicked">#ff4444</color>
+    <color name="heading">#ff4444</color>
     <color name="backgroundcolor">#1c2a1f</color>
     <color name="homebackground">#fff</color>
+    <color name="textcolor">#ffffff</color>
+    <color name="color_background">#000000</color>
+
 
 </resources>

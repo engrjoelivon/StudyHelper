@@ -61,14 +61,13 @@ import server_commmunication.ServerWithIon;
 *
 * */
 
-public class AddTab extends AppCompatActivity implements AdapterView.OnItemSelectedListener,Create_Group.Groupname,
-        Generate_Question.QuestionValue,View.OnClickListener,AddTab_Text_Answer_Dialog.SendAnswerText
+public class AddTab extends AppCompatActivity implements AdapterView.OnItemSelectedListener,Create_Group.Groupname
+        ,View.OnClickListener,AddTab_Text_Answer_Dialog.SendAnswerText
 {
     private static final int IDENTIFICATION_ACTIVITY_KEY = 1;
     private final String tag=("AddTab");
     private Create_Group cg;
     TitleInfo titleInfo,titleInfodb;
-    private Generate_Question qg;
     private Button bsave;
     private ImageButton bText,bImage;
     TextView tvgrp,questgrp;
@@ -110,7 +109,7 @@ public class AddTab extends AppCompatActivity implements AdapterView.OnItemSelec
         editText_4_title=(EditText)findViewById(R.id.editText_4_title);
         bsave=(Button)findViewById(R.id.saveTitles); bsave.setOnClickListener(this);
         bText=(ImageButton)findViewById(R.id.button_text);bText.setOnClickListener(this);
-        bImage=(ImageButton)findViewById(R.id.button_image); bImage.setOnClickListener(this);
+        //bImage=(ImageButton)findViewById(R.id.button_image); bImage.setOnClickListener(this);
         prioritybuttonlow=(RadioButton)findViewById(R.id.low_p); prioritybuttonlow.performClick();
         diff_buttonlow=(RadioButton)findViewById(R.id.diff_low);diff_buttonlow.performClick();
 
@@ -170,7 +169,7 @@ public class AddTab extends AppCompatActivity implements AdapterView.OnItemSelec
 
 
         registerForContextMenu(tvgrp);
-        registerForContextMenu(questgrp);
+        //registerForContextMenu(questgrp);
 
     }
 
@@ -371,12 +370,7 @@ public class AddTab extends AppCompatActivity implements AdapterView.OnItemSelec
         if(v==tvgrp)
         {cg=new Create_Group();
             cg.show(fm, "group");}
-        else if(v == questgrp )
-        {
-           qg=new Generate_Question();
-            qg.show(fm,"question");
 
-        }
 
        // getMenuInflater().inflate(R.menu.grpcontextmenu,menu);
 
@@ -391,14 +385,7 @@ public class AddTab extends AppCompatActivity implements AdapterView.OnItemSelec
         cg.dismiss();
     }
 
-    //////////////////////////////responds when the save button is clicked for generate question dialog////////////////////
-    @Override
-    public void question(String name) {
-        Log.d(tag, name);
-        adv.setQuestionName(StringUtility.firstlettercaps(name));//ccalling first letter caps ensures that the same text is saved all the time
-        qg.dismiss();
 
-    }
 
 
     ////////////////////////////////responds when the Enter button is clicked for AddTab_Text_Answer_Dialog////////////
@@ -529,6 +516,7 @@ public class AddTab extends AppCompatActivity implements AdapterView.OnItemSelec
 
     }
 
+    /*
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -544,7 +532,7 @@ public class AddTab extends AppCompatActivity implements AdapterView.OnItemSelec
         }
 
 
-    }
+    }*/
 
     public String handlePicture(long reportId, Bitmap picture) {
         // Saves the new picture to the internal storage with the unique identifier of the report as

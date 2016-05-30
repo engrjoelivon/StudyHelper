@@ -25,8 +25,9 @@
 
          />
     <Spinner
-        style="@style/formcontent"
+        style="@style/forspinner"
         android:id="@+id/grpspinner"
+        android:background="@android:color/transparent"
         />
 </LinearLayout>
 
@@ -174,23 +175,24 @@
 
         <TextView
             style="@style/formcontent.header"
-            android:text="Answer"
+            android:text="@string/answer"
             android:layout_weight="1"
             android:id="@+id/answer"
              />
 
         <ImageButton
-
             android:text="Text"
             android:id="@+id/button_text"
             android:layout_weight="1"
             android:background="@null"
             android:layout_margin="5dp"
             android:src="@drawable/edit"
-
             style="@style/formcontent.buttons"
             />
 
+
+
+        <!--
         <ImageButton
 
             android:text="Image"
@@ -213,6 +215,7 @@
 
             style="@style/formcontent"
             />
+            -->
     </LinearLayout>
 
 
